@@ -1482,10 +1482,7 @@ export const EXAMPLE_PROMPTS: { label: string; prompt: string }[] = [
   },
 ];
 
-export function interpretFixtureFilters(
-  text: string,
-  currentFilters: Filters,
-): InterpretResponse {
+export function interpretFixtureFilters(text: string): InterpretResponse {
   const normalized = text
     .trim()
     .toLowerCase()
@@ -1496,11 +1493,12 @@ export function interpretFixtureFilters(
   const matched = DEMO_PROMPT_TABLE[normalized];
   if (!matched) {
     return {
-      filters: sanitizeFilters(currentFilters),
+      filters: {},
       warnings: [
-        "Demo mode: prompt does not match a rehearsed demo scenario, so active filters were left unchanged.",
+        "Demo mode: this prompt is not one of the rehearsed examples.",
       ],
       mode: "demo",
+      searchable: false,
     };
   }
 
@@ -1508,5 +1506,6 @@ export function interpretFixtureFilters(
     filters: sanitizeFilters(matched),
     warnings: [],
     mode: "demo",
+    searchable: true,
   };
 }

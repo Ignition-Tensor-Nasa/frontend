@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
-import { render, screen, waitFor } from "@testing-library/react";
+import { act, render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import * as apiClient from "../api/client";
 import {
   ApiError,
   downloadDatasetCsv,
@@ -21,7 +22,7 @@ import {
   searchFixtureCases,
 } from "../api/fixtures";
 import { validateDatasetData } from "../utils/datasetValidation";
-import type { CaseSummary, Dataset } from "../api/types";
+import type { CaseSummary, Dataset, SearchResponse } from "../api/types";
 import App from "../App";
 
 describe("Filter sanitization, validation, and search semantics (F02/F03)", () => {
@@ -108,11 +109,9 @@ describe("Filter sanitization, validation, and search semantics (F02/F03)", () =
 
 describe("Assistant prompt interpretation (F04)", () => {
   it("maps Polish and English rehearsed prompts to complete filter states labelled demo", () => {
-    const pl = interpretFixtureFilters(
-      "Pokaż testy z butanem powyżej 200 kPa i ponad 39% tlenu!",
-      { investigation: ["CFI (PSI-39)"] },
-    );
+    const pl = interpretFixtureFilters("Pokaż testy z butanem powyżej 200 kPa i ponad 39% tlenu!");
     expect(pl.mode).toBe("demo");
+    expect(pl.searchable).toBe(true);
     expect(pl.warnings).toEqual([]);
     expect(pl.filters).toEqual({
       fuel: ["butane"],
@@ -121,12 +120,11 @@ describe("Assistant prompt interpretation (F04)", () => {
     });
   });
 
-  it("leaves current filters unchanged with warning for unknown prompts", () => {
-    const res = interpretFixtureFilters("show safe Mars habitat margins", {
-      fuel: ["ethane"],
-    });
+  it("returns no search for unknown prompts", () => {
+    const res = interpretFixtureFilters("show safe Mars habitat margins");
     expect(res.mode).toBe("demo");
-    expect(res.filters).toEqual({ fuel: ["ethane"] });
+    expect(res.filters).toEqual({});
+    expect(res.searchable).toBe(false);
     expect(res.warnings.length).toBeGreaterThan(0);
   });
 });
@@ -196,6 +194,87 @@ describe("DatasetData JSON validation (F06/F07)", () => {
 });
 
 describe("End-to-end Explorer -> Case -> Back journey (F00–F09)", () => {
+  it("runs each prompt as a fresh search and never shows previous results for empty outcomes", async () => {
+    const interpret = vi.spyOn(apiClient, "interpretFilters").mockImplementation(async (text) => {
+      if (text === "first") {
+        return { filters: { fuel: ["butane"] }, warnings: [], mode: "live", searchable: true };
+      }
+      if (text === "no matches") {
+        return { filters: { pressure_kpa: { min: 5000 } }, warnings: [], mode: "live", searchable: true };
+      }
+      return { filters: {}, warnings: ["No supported search could be created."], mode: "live", searchable: false };
+    });
+    const search = vi.spyOn(apiClient, "searchCases");
+    const user = userEvent.setup();
+    render(<App />);
+    await screen.findByText(`${FIXTURE_CASES.length} matching runs`);
+    const input = screen.getByLabelText("Combustion scenario description");
+    const submit = screen.getByRole("button", { name: /Apply Scenario/i });
+
+    await user.type(input, "first");
+    await user.click(submit);
+    await screen.findByText("Fuel: butane");
+    expect(screen.getByText("CFIG-21291C1")).toBeInTheDocument();
+
+    await user.clear(input);
+    await user.type(input, "no matches");
+    await user.click(submit);
+    await screen.findByText("No experiment runs match this prompt");
+    expect(screen.getByText("0 matching runs")).toBeInTheDocument();
+    expect(screen.queryByText("CFIG-21291C1")).not.toBeInTheDocument();
+    expect(screen.queryByText("Fuel: butane")).not.toBeInTheDocument();
+    expect(interpret).toHaveBeenLastCalledWith("no matches", expect.objectContaining({ mode: "fixtures" }));
+    expect(search).toHaveBeenLastCalledWith({ pressure_kpa: { min: 5000 } },
+      expect.objectContaining({ mode: "fixtures" }), expect.any(AbortSignal));
+
+    const searchesBeforeUnknown = search.mock.calls.length;
+    await user.clear(input);
+    await user.type(input, "unrecognised");
+    await user.click(submit);
+    await screen.findByText("No supported search could be created from this prompt");
+    expect(screen.getByText("0 matching runs")).toBeInTheDocument();
+    expect(search).toHaveBeenCalledTimes(searchesBeforeUnknown);
+
+    await user.clear(input);
+    await user.type(input, "first");
+    await user.click(submit);
+    await screen.findByText("CFIG-21291C1");
+    expect(screen.getByText("Fuel: butane")).toBeInTheDocument();
+    expect(screen.queryByText(/Pressure:.*5000/)).not.toBeInTheDocument();
+    interpret.mockRestore();
+    search.mockRestore();
+  });
+
+  it("discards a late previous search after an unrecognised prompt", async () => {
+    const originalSearch = apiClient.searchCases;
+    let finishOldSearch: ((value: SearchResponse) => void) | undefined;
+    const search = vi.spyOn(apiClient, "searchCases").mockImplementation((filters, config, signal) => {
+      if (filters.fuel?.includes("butane")) {
+        return new Promise((resolve) => { finishOldSearch = resolve; });
+      }
+      return originalSearch(filters, config, signal);
+    });
+    const interpret = vi.spyOn(apiClient, "interpretFilters").mockResolvedValue({
+      filters: {}, warnings: ["No supported search could be created."], mode: "live", searchable: false,
+    });
+    const user = userEvent.setup();
+    render(<App />);
+    await screen.findByText(`${FIXTURE_CASES.length} matching runs`);
+    await user.click(screen.getByRole("button", { name: "butane" }));
+    await user.click(screen.getByRole("button", { name: /Apply Filters/i }));
+    await waitFor(() => expect(finishOldSearch).toBeDefined());
+    await user.type(screen.getByLabelText("Combustion scenario description"), "unrecognised");
+    await user.click(screen.getByRole("button", { name: /Apply Scenario/i }));
+    await screen.findByText("No supported search could be created from this prompt");
+
+    await act(async () => { finishOldSearch?.({ items: [FIXTURE_CASES[0]], total: 1 }); });
+    expect(screen.getByText("0 matching runs")).toBeInTheDocument();
+    expect(screen.queryByText(FIXTURE_CASES[0].case_id)).not.toBeInTheDocument();
+    expect(screen.getByText("No supported search could be created from this prompt")).toBeInTheDocument();
+    interpret.mockRestore();
+    search.mockRestore();
+  });
+
   it("runs scenario filter assistant, preserves state across case navigation, and handles reset", async () => {
     const user = userEvent.setup();
     render(<App />);

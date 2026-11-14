@@ -31,6 +31,8 @@ export function ResultsTable() {
     totalResults,
     searchLoading,
     searchError,
+    assistantError,
+    assistantResult,
     retrySearch,
     quickQuery,
     setQuickQuery,
@@ -251,17 +253,29 @@ export function ResultsTable() {
         </div>
       )}
 
-      {!searchError && !searchLoading && results.length === 0 && (
+      {!searchError && !searchLoading && assistantError && results.length === 0 && (
+        <p className="text-sm text-slate-400 text-center py-6">
+          The scenario was not searched. Try again or use the manual filters.
+        </p>
+      )}
+
+      {!searchError && !searchLoading && !assistantError && results.length === 0 && (
         <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-8 text-center space-y-3">
           <div className="mx-auto h-11 w-11 rounded-full bg-slate-900 border border-slate-700 flex items-center justify-center">
             <SearchX className="h-5 w-5 text-slate-400" />
           </div>
           <div>
             <h3 className="text-sm font-semibold text-slate-100">
-              No experiment runs match the active constraints
+              {assistantResult
+                ? assistantResult.searchable
+                  ? "No experiment runs match this prompt"
+                  : "No supported search could be created from this prompt"
+                : "No experiment runs match the active constraints"}
             </h3>
             <p className="text-xs text-slate-400 max-w-md mx-auto mt-1">
-              Matching uses strict intersection across fields; runs with unknown (null) metadata are excluded when a constraint is active.
+              {assistantResult && !assistantResult.searchable
+                ? "Try a description using the available fuel, investigation, oxygen, pressure or mixture fraction filters."
+                : "Matching uses strict intersection across fields; runs with unknown (null) metadata are excluded when a constraint is active."}
             </p>
           </div>
           <button

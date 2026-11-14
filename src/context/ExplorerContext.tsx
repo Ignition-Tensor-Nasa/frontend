@@ -35,6 +35,7 @@ export interface AssistantResultState {
   lastPrompt: string;
   mode: InterpretMode;
   warnings: string[];
+  searchable: boolean;
   changedFields: FilterFieldKey[];
   appliedAt: number;
 }
@@ -154,6 +155,8 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
 
       setSearchLoading(true);
       setSearchError(null);
+      setResults([]);
+      setTotalResults(0);
 
       try {
         const res = await searchCases(
@@ -237,6 +240,8 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
       const target = sanitizeFilters(nextFilters ?? draftFilters);
       setDraftFilters(target);
       setCommittedFilters(target);
+      setAssistantResult(null);
+      setAssistantError(null);
       setHighlightedFields([]);
       void runSearch(target, dataSourceMode);
     },
@@ -261,6 +266,8 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
       const clean = sanitizeFilters(next);
       setDraftFilters(clean);
       setCommittedFilters(clean);
+      setAssistantResult(null);
+      setAssistantError(null);
       setHighlightedFields([]);
       void runSearch(clean, dataSourceMode);
     },
@@ -300,18 +307,33 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
 
       const startRevision = filterRevisionRef.current;
       const baselineFilters = sanitizeFilters(committedFilters);
+      // A scenario is a new search, not a refinement of the previous one.
+      searchAbortRef.current?.abort();
+      const scenarioSearchId = ++searchRequestIdRef.current;
+      setDraftFilters({});
+      setCommittedFilters({});
+      setResults([]);
+      setTotalResults(0);
+      setQuickQuery("");
+      setSearchLoading(true);
+      setSearchError(null);
+      setAssistantResult(null);
+      setHighlightedFields([]);
 
       setAssistantLoading(true);
       setAssistantError(null);
 
       try {
-        const res = await interpretFilters(text, baselineFilters, {
+        const res = await interpretFilters(text, {
           mode: dataSourceMode,
           fault: faultInjection,
         });
 
         // Discard response if manual filters changed while request was in flight
         if (filterRevisionRef.current !== startRevision) {
+          if (searchRequestIdRef.current === scenarioSearchId) {
+            setAssistantError("The scenario search was cancelled because the filters changed. Apply the filters or try again.");
+          }
           return;
         }
 
@@ -324,13 +346,19 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
           lastPrompt: text,
           mode: res.mode,
           warnings: res.warnings,
+          searchable: res.searchable,
           changedFields: changed,
           appliedAt: Date.now(),
         });
         triggerHighlight(changed);
-        void runSearch(nextFilters, dataSourceMode);
+        if (res.searchable) {
+          void runSearch(nextFilters, dataSourceMode);
+        }
       } catch (err) {
         if (filterRevisionRef.current !== startRevision) {
+          if (searchRequestIdRef.current === scenarioSearchId) {
+            setAssistantError("The scenario search was cancelled because the filters changed. Apply the filters or try again.");
+          }
           return;
         }
         const message =
@@ -341,6 +369,9 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
               : "AI assistant could not process the scenario.";
         setAssistantError(message);
       } finally {
+        if (searchRequestIdRef.current === scenarioSearchId) {
+          setSearchLoading(false);
+        }
         setAssistantLoading(false);
       }
     },

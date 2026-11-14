@@ -116,6 +116,7 @@ export type InterpretResponse = {
   filters: Filters;
   warnings: string[];
   mode: InterpretMode;
+  searchable: boolean;
 };
 
 export type DataSourceMode = "fixtures" | "live";

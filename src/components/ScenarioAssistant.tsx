@@ -137,11 +137,13 @@ export function ScenarioAssistant() {
         <div className="rounded-xl border border-slate-800 bg-slate-950/60 px-3.5 py-2 text-xs space-y-1.5">
           <div className="flex flex-wrap items-center justify-between gap-2 text-slate-300">
             <span className="truncate">
-              <span className="text-slate-500">Applied prompt:</span> “
+              <span className="text-slate-500">Prompt:</span> “
               {assistantResult.lastPrompt}”
             </span>
             <span className="font-mono-telemetry text-[11px] text-cyan-300">
-              {assistantResult.changedFields.length > 0
+              {!assistantResult.searchable
+                ? "No supported search"
+                : assistantResult.changedFields.length > 0
                 ? `Updated: ${assistantResult.changedFields.join(", ")}`
                 : "No filter changes"}
             </span>

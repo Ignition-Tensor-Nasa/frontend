@@ -40,16 +40,16 @@ GET /api/v1/filters	None	FilterOptions
 POST /api/v1/cases/search	{ filters?: Filters }	{ items: CaseSummary[], total: number }
 GET /api/v1/cases/{case_id}	Case ID	CaseDetail
 GET /api/v1/datasets/{dataset_id}/csv	Dataset ID	One normalized CSV
-POST /api/v1/filters/interpret	{ text: string, current_filters?: Filters }	`{ filters: Filters, warnings: string[], mode: "live"
+POST /api/v1/filters/interpret	{ text: string }	`{ filters: Filters, warnings: string[], mode: "live" | "demo", searchable: boolean }`
 Filtering
 Empty filters match the curated catalogue. AND across fields, OR within category arrays, inclusive numeric bounds with at least one present. Omit an unset key; do not send empty category arrays. Null metadata fails an active constraint. Categories come from the catalogue; numeric options are observed bounds or null when unavailable. Valid searches can lie outside observed bounds.
 
 O₂ uses percentage points (0–100); pressure is nonnegative kPa absolute. 1 psi = 6.894757293168 kPa. Reject unknown keys/categories, wrong types, reversed/ nonfinite ranges, and out-of-domain values. No silent relaxation or invented scores. Search returns all matches ordered by case ID; total = items.length.
 
 Interpretation
-Input text is trimmed, nonempty, ≤4,000 characters; current filters default empty. The server validates the complete returned filter state, preserving constraints the user did not address; explicit removal omits that key. It returns no scientific answer or search results. Unknown/ambiguous concepts generate warnings, not guessed thresholds. No valid change means unchanged filters and warnings.
+Input text is trimmed, nonempty, ≤4,000 characters. Every prompt starts with empty filters; the legacy `current_filters` field is ignored. The server validates the complete returned filter state. It returns no scientific answer or search results. Unknown/ambiguous concepts generate warnings, not guessed thresholds. `searchable: false` means no supported search was recognised: show no results and do not search the empty filters. `searchable: true` with empty filters can represent an explicit request to show all cases.
 
-mode: "live" means a real provider call. Explicit demo configuration may use reviewed responses for exact rehearsed prompts; unknown prompts leave filters unchanged with a warning. Demo responses return mode: "demo". A failed live request must not silently become a successful cached response.
+mode: "live" means a real provider call. Explicit demo configuration may use reviewed responses for exact rehearsed prompts; unknown prompts are not searchable and include a warning. Demo responses return mode: "demo". A failed live request must not silently become a successful cached response.
 
 CSV and errors
 Serve a single allowlisted dataset ID, never a request-supplied filesystem path. CSV is UTF-8, comma-delimited, one descriptor-matching header row, standard quoting, decimal-point numbers, empty cells for nulls, and no metadata preamble. Default axes/channels refer to existing numeric columns or are null/empty. Use text/csv; charset=utf-8 and a safe Content-Disposition filename exposed via CORS. Keep units/source context; explicitly label any preparation-time sampling in the case note. Small full series are preferable. No hidden truncation/interpolation.

@@ -368,7 +368,6 @@ export async function getDatasetData(
 
 export async function interpretFilters(
   text: string,
-  currentFilters: Filters,
   config: ApiClientConfig,
   signal?: AbortSignal,
 ): Promise<InterpretResponse> {
@@ -387,15 +386,12 @@ export async function interpretFilters(
         "Simulated 503: AI assistant provider is currently unavailable. Manual filters remain usable.",
       );
     }
-    return interpretFixtureFilters(trimmed, currentFilters);
+    return interpretFixtureFilters(trimmed);
   }
 
   return fetchJson<InterpretResponse>("/api/v1/filters/interpret", {
     method: "POST",
-    body: JSON.stringify({
-      text: trimmed,
-      current_filters: sanitizeFilters(currentFilters),
-    }),
+    body: JSON.stringify({ text: trimmed }),
     signal,
   });
 }
