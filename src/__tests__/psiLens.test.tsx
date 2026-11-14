@@ -639,3 +639,82 @@ describe("Optional Hackathon Modules (F10, F11, F12, F13, F15, F18, F19, F20)", 
     ).toBeInTheDocument();
   });
 });
+
+describe("Special Curated Cases: SAFFIRE-III (PSI-100) bespoke view & AI summary", () => {
+  it("renders SpecialCasesTile on explorer, opens /special-cases/:caseId with 4 bespoke charts, toggles samples, and updates AI summary", async () => {
+    window.history.pushState({}, "", "/");
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Explorer displays the N=2 Special Cases tile with bespoke warning
+    const tile = await screen.findByTestId("special-cases-tile");
+    expect(tile).toHaveTextContent("2 special cases");
+    expect(tile).toHaveTextContent(/wyłącznie dla tych 2 specjalnych case'ów/i);
+
+    const openSample1 = screen.getByTestId("special-case-open-SAFFIRE-III-S1");
+    expect(openSample1).toBeInTheDocument();
+    expect(
+      screen.getByTestId("special-case-open-SAFFIRE-III-S2"),
+    ).toBeInTheDocument();
+
+    // Clicking Sample 1 navigates to /special-cases/SAFFIRE-III-S1 (not standard /cases/:id)
+    await user.click(openSample1);
+    expect(window.location.pathname).toBe("/special-cases/SAFFIRE-III-S1");
+    expect(
+      await screen.findByText(/Saffire-III: A Fire, Lit on Purpose, Aboard a Spacecraft/i),
+    ).toBeInTheDocument();
+
+    // Standard single-case chart is absent; all 4 bespoke SAFFIRE-III ECharts sections render
+    expect(
+      screen.queryByTestId("hero-timeseries-canvas"),
+    ).not.toBeInTheDocument();
+    expect(screen.getByTestId("saffire-burn-canvas")).toBeInTheDocument();
+    expect(screen.getByTestId("saffire-arrival-canvas")).toBeInTheDocument();
+    expect(screen.getByTestId("saffire-playback-canvas")).toBeInTheDocument();
+    expect(screen.getByTestId("saffire-spacecraft-canvas")).toBeInTheDocument();
+
+    // AI Mission & Telemetry Summary card loads in PL mode by default with honest Demo badge
+    const aiCard = screen.getByTestId("saffire-ai-summary-card");
+    await waitFor(() => {
+      expect(aiCard).toHaveTextContent(/AI Mode:\s*demo/i);
+      expect(aiCard).toHaveTextContent(/Saffire-III Sample 1: Pożar do 1088 °C/i);
+    });
+
+    // Switch AI summary focus and language (en), then submit custom prompt
+    await user.click(
+      screen.getByRole("button", { name: /1\. 30 Hz Burn & Plume/i }),
+    );
+    await user.click(screen.getByRole("button", { name: /^en$/i }));
+    await waitFor(() => {
+      expect(aiCard).toHaveTextContent(
+        /Saffire-III Sample 1: 1088 °C Microgravity Burn/i,
+      );
+    });
+
+    const promptInput = screen.getByLabelText("Custom AI summary question");
+    await user.type(promptInput, "Explain FIZ 2 lag");
+    await user.click(
+      screen.getByRole("button", { name: /Regenerate AI Summary/i }),
+    );
+    await waitFor(() => {
+      expect(aiCard).toHaveTextContent(/Addressed custom question: “Explain FIZ 2 lag”/i);
+    });
+
+    // Switch to Sample 2 via header sample switcher
+    await user.click(screen.getByTestId("saffire-switch-SAFFIRE-III-S2"));
+    expect(window.location.pathname).toBe("/special-cases/SAFFIRE-III-S2");
+    await waitFor(() => {
+      expect(aiCard).toHaveTextContent(
+        /Saffire-III Sample 2: 8\.0 s Igniter Pulse & Plume Signature/i,
+      );
+    });
+    expect(screen.getByRole("button", { name: /≥ 15 °C/i })).toBeInTheDocument();
+    expect(
+      screen.getByText(/Sample 2 thermocouples remained ≤ 20\.0 °C/i),
+    ).toBeInTheDocument();
+
+    // Back to Explorer restores main screen
+    await user.click(screen.getByRole("link", { name: /Back to Explorer/i }));
+    expect(await screen.findByTestId("special-cases-tile")).toBeInTheDocument();
+  }, 30000);
+});

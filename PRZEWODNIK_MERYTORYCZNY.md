@@ -18,6 +18,7 @@ Ten dokument wyjaśnia **każdy pojedynczy element interfejsu, każdą opcję, k
 10. [Wszystkie wykresy i kontrolki na stronie przypadku (F07, F08, F11, F13, F21)](#10-wszystkie-wykresy-i-kontrolki-na-stronie-przypadku-f07-f08-f11-f13-f21)
 11. [Kompletny katalog wszystkich 43 eksperymentów (29 `ACME CFI-G` + 14 `CFI (FLEX)`)](#11-kompletny-katalog-wszystkich-43-eksperymentów-29-acme-cfi-g--14-cfi-flex)
 12. [Szybki przewodnik czytania strony krok po kroku (60-sekundowa ścieżka demonstracyjna)](#12-szybki-przewodnik-czytania-strony-krok-po-kroku-60-sekundowa-ścieżka-demonstracyjna)
+13. [Specjalne przypadki kuratorskie: `SAFFIRE-III` (`PSI-100`) — dedykowany widok 4-sekcyjny i podsumowanie AI](#13-specjalne-przypadki-kuratorskie-saffire-iii-psi-100--dedykowany-widok-4-sekcyjny-i-podsumowanie-ai)
 
 ---
 
@@ -488,3 +489,72 @@ Wszystkie testy używają ciekłego $n$-dodekanu ($\text{C}_{12}\text{H}_{26}$),
 3. **Przełącz na zakładkę `Condition Galaxy & Z_st (F19/F15)`** $\rightarrow$ kliknij punkt `CFIG-21291C1` (6 gorących / 5 zimnych płomieni), zobacz jego sąsiadów **B11** i porównaj go w oknie **F12** z `CFIG-21174C2` (tylko gorący płomień) z włączonym wyrównaniem do zapłonu **`Time: Aligned to Verified Ignition (Δt)`**.
 4. **Otwórz bieg `CFIG-21291C1`** $\rightarrow$ na wykresie `Time-Series` zobacz 5 charakterystycznych schodków spadku i powrotu na kanałach `Radiometer3+30LoGain` i `PMT1`; przełącz na `Scatter View` i `Parallel Coords`, aby obejrzeć korelację wielokanałową.
 5. **Wróć (`Back to Results`), kliknij preset `CFI (FLEX) Droplets` i otwórz `FLEX-1249`** $\rightarrow$ w sekcji `Cool-Flame Droplet Lifecycle Deck (F13)` zobacz w jednym widoku spadek $D^2(t)$ z linią prostą ($K = 0.417\ \text{mm}^2/\text{s}$, $R^2 = 0.9998$), średnicę zimnego płomienia (`FWHM` i `P2P`) oraz skok mocy na radiometrze wąskopasmowym (`TotalNarrowBandPower_W`).
+6. **Na stronie głównej kliknij kartę `SAFFIRE-III-S1` w kafelku `Special Featured Cases · SAFFIRE-III (NASA PSI-100)`** $\rightarrow$ przejdziesz do dedykowanego widoku `/special-cases/SAFFIRE-III-S1` (stworzonego wyłącznie dla `SAFFIRE-III`), przeczytaj **AI Mission & Telemetry Summary** (PL/EN), obejrzyj 7 zsynchronizowanych paneli `30 Hz` dla Próbki 1 (`1088 °C` na `TC11`), przełącz na `Sample 2`, uruchom odtwarzanie **`Play`** w Sekcji 3 i zbadaj reakcję kabinowego detektora dymu `FIZ 2` po $23\ \text{s}$ w Sekcji 4 (`1 Hz`).
+
+---
+
+## 13. Specjalne przypadki kuratorskie: `SAFFIRE-III` (`PSI-100`) — dedykowany widok 4-sekcyjny i podsumowanie AI
+
+Poza standardowym katalogiem **43 eksperymentów** (`29 ACME CFI-G` + `14 CFI (FLEX)`), na stronie głównej nad wynikami znajduje się osobny kafelek **`Special Featured Cases · SAFFIRE-III (NASA PSI-100)`** prezentujący **`2 special cases`**: **`SAFFIRE-III-S1`** oraz **`SAFFIRE-III-S2`**.
+
+> **Ważna uwaga konstrukcyjna:** Widok dostępny pod `/special-cases/:caseId` (`SaffireSpecPage`, adaptacja skryptu `saffire3`) jest **przygotowany wyłącznie dla tych dwóch przypadków `SAFFIRE-III`**. Po kliknięciu kafelka nie otwiera się uniwersalna strona `CaseDetailPage`, lecz specjalny 4-sekcyjny układ analityczny połączony z modułem podsumowania AI.
+
+### 13.1 Czym był eksperyment NASA `SAFFIRE-III` (`PSI-100`)?
+
+W 2017 roku, po odłączeniu zaopatrzeniowego statku towarowego **Cygnus OA-7** od Międzynarodowej Stacji Kosmicznej (zanim spłonął przy kontrolowanym wejściu w atmosferę), NASA przeprowadziła wewnątrz bezzałogowej kabiny kontrolowany pożar wielkoskalowej próbki (`~0.4 × 0.94 m`, przepływ powietrza ok. $25\ \text{cm/s}$, tlen $\approx 19.84\text{–}19.88\%$, ciśnienie początkowe $99.4\ \text{kPa}$). Pozwoliło to jednocześnie mierzyć:
+* **Wewnątrz komory testowej (`30 Hz`):** gęstą sieć termopar powierzchniowych i gazowych, radiometrów, czujników $\text{O}_2$, $\text{CO}_2$, ciśnienia oraz anemometrów z arkuszy `Saffire III Sample 1 Sensors.xlsx` (`20,909` próbek, $690\ \text{s}$) i `Saffire III Sample 2 Sensors.xlsx` (`4,848` próbek, $160\ \text{s}$).
+* **W kabinie statku Cygnus (`1 Hz`):** pokładową telemetrię statku z pliku `Saffire_Data_Table2017.161.00.42.03-EU.csv` (`11,449` wierszy, $6900\ \text{s}$), w tym komercyjny kabinowy detektor dymu **`FIZ 2` (scatterometer)** reagujący na impulsy drutu dymnego (`smoke_wire`) i produkty spalania.
+
+### 13.2 Porównanie obu specjalnych przypadków (`Sample 1` vs `Sample 2`)
+
+| Case ID | Czas trwania (`30 Hz`) | Okno zapalnika (`Igniter`) | Szczyt powierzchni (`TC7–TC12`) | Szczyt w smudze (`TC1–TC6`) | Radiometr i atmosfera | Charakterystyka |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| **`SAFFIRE-III-S1`** | `690.0 s` | `19.9 – 26.9 s` | **`1088 °C`** (`TC11`, $247\ \text{s}$ po zapłonie) | **`942 °C`** (`TC4`) | `169 mW/cm²` (`Radiometer 4`); $\text{O}_2$: $19.84 \rightarrow 19.40\%$; $\text{CO}_2$: $0.40 \rightarrow 0.61\%$; $\Delta P$: $+0.51\ \text{kPa}$; nawiew `25 cm/s` | **Pełnoskalowy pożar próbki** obejmujący wszystkie termopary i wyraźnie zmieniający skład gazu oraz ciśnienie w komorze. |
+| **`SAFFIRE-III-S2`** | `160.0 s` | `60.03 – 67.98 s` | **`20.04 °C`** (`TC12`, próg $100\,^\circ\text{C}$ nieosiągnięty) | **`48.35 °C`** (`TC3` podczas zapalnika) | `-3.72 mW/cm²` (tło ok. `-17.5`); $\text{O}_2$: $19.88 \rightarrow 19.69\%$; $\text{CO}_2$: $0.38 \rightarrow 0.39\%$; $\Delta P$: $+0.15\ \text{kPa}$; nawiew `21 cm/s` | **Towarzyszący zapis `30 Hz` z krótszym impulsem zapalnika ($8.0\ \text{s}$)** — wyraźny skok temperatury w gazie smugi (`TC3`), podczas gdy powierzchnia próbki pozostała $\le 20.04\,^\circ\text{C}$. |
+
+* **6 kafelków podsumowujących w nagłówku:** wyliczają bezpośrednio na górze strony szczytową temperaturę próbki, szczytowy strumień promieniowania (z przypomnieniem o ujemnej kalibracji spoczynkowej radiometrów ok. $-17\text{ do }-18\ \text{mW/cm}^2$), zmianę $\text{O}_2/\text{CO}_2$, przyrost ciśnienia od $99.4\ \text{kPa}$, prędkość przepływu przed zapłonem oraz czas reakcji detektora `FIZ 2` ($23\ \text{s}$).
+* **Przełącznik `Sample 1` / `Sample 2`:** przyciski w nagłówku (oraz nad Sekcją 1) przełączają widoki między `SAFFIRE-III-S1` i `SAFFIRE-III-S2`, aktualizując wszystkie 4 sekcje i kontekst AI bez przeładowywania całej strony.
+
+### 13.3 Moduł `AI Mission & Telemetry Summary (LLM Analysis)`
+
+Dedykowana karta AI nad wykresami korzysta z endpointu backendowego `POST /api/v1/special-cases/{case_id}/ai-summary`:
+* **Przełącznik języka (`PL` / `EN`) i 4 tryby fokusu:**
+  * `Mission Overview` — przekrojowe podsumowanie pożaru i telemetrii Cygnusa;
+  * `1. 30 Hz Burn & Plume` — analiza przebiegu palenia, radiometrów, termopar i gazów $\text{O}_2/\text{CO}_2$;
+  * `2–3. Flame Arrival & Replay` — interpretacja kolejności nagrzewania `TC7–TC12` i zastrzeżeń geometrycznych;
+  * `4. Cygnus 1 Hz Cabin` — analiza drutu dymnego (`smoke_wire`), opóźnienia `FIZ 2` ($23\ \text{s}$ od $0.025\ \text{V}$ do szczytu $1.805\ \text{V}$) oraz ciśnienia kabinowego `EPS`.
+* **Pole własnego pytania (`Custom AI summary question`) + `Regenerate AI Summary`:** pozwala zadać modelowi AI szczegółowe pytanie dotyczące telemetryki `SAFFIRE-III` (np. o różnicę między Sample 1 a Sample 2).
+* **Uczciwa odznaka trybu (`AI Mode: live` vs `AI Mode: demo`):** wyraźnie rozróżnia odpowiedź wygenerowaną przez zewnętrzny klucz LLM (`live`) od ugruntowanego w danych podsumowania offline (`demo`), pokazując jawnie sekcję **`Measurement Scope & Caveats`**.
+
+### 13.4 Cztery sekcje wykresów na stronie `/special-cases/:caseId`
+
+1. **Sekcja 1 — `The burn, sensor by sensor (30 Hz)`:**
+   * 7 pionowo ułożonych paneli ze **wspólną, zsynchronizowaną osią czasu i wspólnym celownikiem (*crosshair*)**:
+     1. `Sample surface temperature` (`TC7–TC12`, $^\circ\text{C}$);
+     2. `Radiant heat flux` (`Radiometer 1–4`, $\text{mW/cm}^2$);
+     3. `Plume (gas) temperature` (`TC1–TC6`, $^\circ\text{C}$);
+     4. `Oxygen` ($\text{O}_2$, $\%$);
+     5. `Carbon dioxide` ($\text{CO}_2$, $\%$);
+     6. `Ambient pressure` ($\text{kPa}$);
+     7. `Air flow speed` (`Anemometer 1–2`, $\text{cm/s}$).
+   * **Obwiednia `min/max` do `2500` punktów na krzywą:** wiernie zachowuje ostre piki $30\ \text{Hz}$ i granice braków danych (`null`) bez sztucznego wygładzania.
+   * **Żółty pasek zapalnika (`Igniter`):** zaznacza czas podania prądu zapalnika (`19.9–26.9 s` w Sample 1, `60.03–67.98 s` w Sample 2).
+   * **Presety okien czasowych (`Whole run`, `Ignition`, `Peak burn`) oraz `Save Snapshot` (PNG).**
+2. **Sekcja 2 — `Following the flame across the sample (TC7–TC12)`:**
+   * Pokazuje czas pierwszego przekroczenia wybranego progu temperatury przez każdą termoparę powierzchniową:
+     * dla **Sample 1**: progi **`≥ 100 °C`**, **`≥ 300 °C`** (domyślny), **`≥ 600 °C`**;
+     * dla **Sample 2**: progi **`≥ 15 °C`** (domyślny), **`≥ 17 °C`** oraz **`≥ 100 °C`** (aby uczciwie pokazać, że żadna termopara nie osiągnęła $100\,^\circ\text{C}$, a lekkie nagrzanie od impulsu wynosiło kilkanaście $^\circ\text{C}$).
+   * **Zastrzeżenie naukowe:** przetworzone arkusze nie podają współrzędnych geometrycznych montażu `TC7–TC12`, więc wykres dokumentuje **kolejność i czasy dotarcia**, a nie wyliczoną prędkość rozprzestrzeniania płomienia.
+3. **Sekcja 3 — `Heating across the thermocouples (3 s bins)`:**
+   * Interaktywny wykres słupkowy profilu temperatury dla `TC7–TC12` zagregowany w 3-sekundowych przedziałach czasu.
+   * Przyciski **`Play` / `Pause`**, **`Reset`** oraz **suwak czasu** pozwalają obejrzeć krok po kroku falę cieplną przechodzącą po kolejnych termoparach próbki aż do ostygnięcia.
+4. **Sekcja 4 — `What the spacecraft itself noticed (Cygnus 1 Hz telemetry)`:**
+   * 5 zsynchronizowanych paneli z łączności pokładowej `1 Hz` Cygnusa OA-7:
+     1. `Cygnus smoke detector FIZ 2, scatterometer` (`V` — surowy sygnał woltowy rozpraszania dymu, nie skalibrowane stężenie cząstek);
+     2. `Saffire radiometers, 1 Hz downlink` ($\text{mW/cm}^2$);
+     3. `Cygnus cabin pressure` (`EPS 1`, $\text{kPa}$);
+     4. `Cygnus cabin air temperature` ($^\circ\text{C}$);
+     5. `Saffire air flow` (`Anemometer 1`, $\text{cm/s}$).
+   * **Zdarzenia na osi czasu:** przerywane pionowe linie oznaczają impulsy **`smoke_wire`** (drutu dymnego), a żółte pasy zaznaczają okna zapalników **Sample 2** (`~5759 s`) i **Sample 1** (`~5954 s`). Widać, że kabinowy detektor dymu `FIZ 2` zareagował **$\approx 23\ \text{s}$** po pierwszym impulsie drutu dymnego, wzrastając od tła $0.025\ \text{V}$ do szczytu $1.805\ \text{V}$ w trakcie palenia Próbki 1.
+   * **Presety okien (`Experiment`, `First smoke`, `Whole downlink`) oraz `Save Snapshot` (PNG).**
+   * **Rozdzielenie osi czasu:** zegar `30 Hz` komory Saffire i zegar `1 Hz` telemetryki Cygnusa różnią się w znacznikach źródłowych o ok. **1 dobę**, dlatego Sekcje 1–3 oraz Sekcja 4 celowo zachowują oddzielne osie czasu zamiast sztucznego nakładania.

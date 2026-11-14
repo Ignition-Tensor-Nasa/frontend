@@ -116,6 +116,7 @@ export type InterpretResponse = {
   filters: Filters;
   warnings: string[];
   mode: InterpretMode;
+  searchable?: boolean;
 };
 
 export type DataSourceMode = "fixtures" | "live";
@@ -125,3 +126,154 @@ export type DemoFaultInjection =
   | "ai_unavailable"
   | "dataset_unavailable"
   | "dataset_shape_mismatch";
+
+export type SpecialCaseSummary = {
+  case_id: string;
+  sample_number: number;
+  title: string;
+  subtitle: string;
+  investigation: string;
+  capsule: string;
+  fuel: string;
+  o2_pct: number;
+  pressure_kpa: number;
+  recording_duration_s: number;
+  peak_temp_c: number;
+  peak_heat_flux_mw_cm2: number;
+  highlight_badge: string;
+};
+
+export type SpecialCasesListResponse = {
+  bespoke_notice: string;
+  items: SpecialCaseSummary[];
+  total: number;
+};
+
+export type SaffireTile = {
+  value: string;
+  label: string;
+  detail: string;
+};
+
+export type SaffireSeries = {
+  name: string;
+  color: string;
+  points: [number, number | null][];
+};
+
+export type SaffirePanel = {
+  id: string;
+  title: string;
+  unit: string;
+  series: SaffireSeries[];
+};
+
+export type SaffireSampleStats = {
+  duration_s: number;
+  igniter_window: [number, number] | null;
+  peak_sample_tc: string;
+  peak_sample_temp_c: number;
+  peak_sample_time_s: number;
+  peak_after_ignition_s: number;
+  peak_plume_tc: string;
+  peak_plume_temp_c: number;
+  peak_radiometer: string;
+  peak_heat_flux_mw_cm2: number;
+  idle_heat_flux_mw_cm2: number;
+  o2_before_pct: number;
+  o2_min_pct: number;
+  co2_before_pct: number;
+  co2_max_pct: number;
+  pressure_before_kpa: number;
+  pressure_rise_kpa: number;
+  air_flow_cm_s: number;
+};
+
+export type SaffireSamplePayload = {
+  sample_number: number;
+  case_id: string;
+  tab_label: string;
+  duration_s: number;
+  point_limit: number;
+  igniter_window: [number, number] | null;
+  presets: Record<string, [number, number]>;
+  tiles: SaffireTile[];
+  stats: SaffireSampleStats;
+  burn_panels: SaffirePanel[];
+  arrival: {
+    thermocouples: string[];
+    thresholds_c: number[];
+    default_threshold_c: number;
+    arrivals_by_threshold: Record<string, (number | null)[]>;
+    peaks_c: number[];
+    max_t: number;
+    note: string;
+  };
+  playback: {
+    thermocouples: string[];
+    step_s: number;
+    y_max_c: number;
+    frames: { t_s: number; values_c: number[] }[];
+  };
+};
+
+export type SaffireSpacecraftEvents = {
+  igniter1: number[];
+  igniter2: number[];
+  smoke_wire: number[];
+  window: [number, number];
+  scatter_baseline: number;
+  scatter_peak: number;
+  scatter_peak_t: number;
+  first_rise: number;
+  smoke_lag_s: number;
+};
+
+export type SaffireSpacecraftPayload = {
+  events: SaffireSpacecraftEvents;
+  presets: Record<string, [number, number]>;
+  t_max: number;
+  panels: SaffirePanel[];
+};
+
+export type SaffireSpecialCasePayload = {
+  case_id: string;
+  active_sample_number: number;
+  bespoke_notice: string;
+  items: SpecialCaseSummary[];
+  samples: Record<string, SaffireSamplePayload>;
+  spacecraft: SaffireSpacecraftPayload;
+  methodology_notes: string[];
+  sources: string[];
+};
+
+export type SaffireAiFocus =
+  | "overview"
+  | "burn_plume"
+  | "flame_spread"
+  | "spacecraft_cabin";
+
+export type SaffireAiLanguage = "pl" | "en";
+
+export type SaffireAiSummaryRequest = {
+  focus?: SaffireAiFocus;
+  language?: SaffireAiLanguage;
+  custom_prompt?: string | null;
+};
+
+export type SaffireAiSummaryBody = {
+  headline: string;
+  executive_summary: string;
+  key_findings: string[];
+  spacecraft_telemetry_insight: string;
+  methodological_caveats: string[];
+};
+
+export type SaffireAiSummaryResponse = {
+  case_id: string;
+  sample_number: number;
+  focus: SaffireAiFocus;
+  language: SaffireAiLanguage;
+  mode: InterpretMode;
+  summary: SaffireAiSummaryBody;
+};

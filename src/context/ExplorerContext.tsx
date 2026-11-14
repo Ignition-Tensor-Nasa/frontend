@@ -324,6 +324,21 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
+        if (res.searchable === false) {
+          setAssistantResult({
+            lastPrompt: text,
+            mode: res.mode,
+            warnings:
+              res.warnings.length > 0
+                ? res.warnings
+                : ["No supported filter search could be derived from this scenario; existing filters were kept."],
+            changedFields: [],
+            appliedAt: Date.now(),
+          });
+          triggerHighlight([]);
+          return;
+        }
+
         const nextFilters = sanitizeFilters(res.filters);
         const changed = diffChangedFilterKeys(baselineFilters, nextFilters);
 

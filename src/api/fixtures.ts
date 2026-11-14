@@ -1516,6 +1516,7 @@ export function interpretFixtureFilters(
         "Demo mode: prompt does not match a rehearsed demo scenario, so active filters were left unchanged.",
       ],
       mode: "demo",
+      searchable: false,
     };
   }
 
@@ -1523,5 +1524,6 @@ export function interpretFixtureFilters(
     filters: sanitizeFilters(matched),
     warnings: [],
     mode: "demo",
+    searchable: true,
   };
 }

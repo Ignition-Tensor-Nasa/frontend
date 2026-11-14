@@ -6,6 +6,11 @@ import {
   interpretFixtureFilters,
   searchFixtureCases,
 } from "./fixtures";
+import {
+  generateFixtureSaffireAiSummary,
+  getFixtureSpecialCaseDetail,
+  getFixtureSpecialCasesList,
+} from "./saffireFixtures";
 import { sanitizeFilters, validateFilters } from "./filters";
 import type {
   CaseDetail,
@@ -17,7 +22,11 @@ import type {
   FilterOptions,
   Filters,
   InterpretResponse,
+  SaffireAiSummaryRequest,
+  SaffireAiSummaryResponse,
+  SaffireSpecialCasePayload,
   SearchResponse,
+  SpecialCasesListResponse,
 } from "./types";
 import { validateDatasetData } from "../utils/datasetValidation";
 
@@ -377,4 +386,64 @@ export async function downloadDatasetCsv(datasetId: string): Promise<string> {
   }
 
   return filename;
+}
+
+export async function getSpecialCases(
+  config: ApiClientConfig,
+  signal?: AbortSignal,
+): Promise<SpecialCasesListResponse> {
+  if (config.mode === "fixtures") {
+    return getFixtureSpecialCasesList();
+  }
+  return fetchJson<SpecialCasesListResponse>("/api/v1/special-cases", {
+    signal,
+  });
+}
+
+export async function getSpecialCaseDetail(
+  caseId: string,
+  config: ApiClientConfig,
+  signal?: AbortSignal,
+): Promise<SaffireSpecialCasePayload> {
+  if (config.mode === "fixtures") {
+    const found = getFixtureSpecialCaseDetail(caseId);
+    if (!found) {
+      throw new ApiError(404, `Unknown special case: ${caseId}`);
+    }
+    return found;
+  }
+  return fetchJson<SaffireSpecialCasePayload>(
+    `/api/v1/special-cases/${encodeURIComponent(caseId)}`,
+    { signal },
+  );
+}
+
+export async function generateSpecialCaseAiSummary(
+  caseId: string,
+  request: SaffireAiSummaryRequest,
+  config: ApiClientConfig,
+  signal?: AbortSignal,
+): Promise<SaffireAiSummaryResponse> {
+  if (config.mode === "fixtures") {
+    if (config.fault === "ai_unavailable") {
+      throw new ApiError(
+        503,
+        "Simulated 503: AI summary provider is currently unavailable.",
+      );
+    }
+    return generateFixtureSaffireAiSummary(
+      caseId,
+      request.focus ?? "overview",
+      request.language ?? "pl",
+      request.custom_prompt,
+    );
+  }
+  return fetchJson<SaffireAiSummaryResponse>(
+    `/api/v1/special-cases/${encodeURIComponent(caseId)}/ai-summary`,
+    {
+      method: "POST",
+      body: JSON.stringify(request),
+      signal,
+    },
+  );
 }
