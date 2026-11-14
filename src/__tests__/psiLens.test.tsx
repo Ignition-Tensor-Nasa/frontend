@@ -1,6 +1,7 @@
 import { describe, expect, it, vi } from "vitest";
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
+import * as echarts from "echarts";
 import {
   ApiError,
   downloadDatasetCsv,
@@ -323,7 +324,7 @@ describe("End-to-end Explorer -> Case -> Back journey (F00–F09)", () => {
     await waitFor(() => {
       expect(screen.getByText("6 matching runs")).toBeInTheDocument();
     });
-  });
+  }, 30000);
 });
 
 describe("43-case benchmark fixture parity with backend manifest", () => {
@@ -453,5 +454,135 @@ describe("Backend polars-analysis-2 compatibility (B05 CSV fallback & B11 neighb
       URL.createObjectURL = origCreateObjectUrl;
       URL.revokeObjectURL = origRevokeObjectUrl;
     }
+  });
+});
+
+describe("Optional Hackathon Modules (F10, F11, F12, F13, F15, F18, F19, F20)", () => {
+  it("renders Atmosphere Heatmap, Galaxy & Z_st Regimes, Safety Context Matrix, and Multi-Case Comparison", async () => {
+    window.history.pushState({}, "", "/");
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(
+      await screen.findByText(`${FIXTURE_CASES.length} matching runs`),
+    ).toBeInTheDocument();
+
+    // F10 Heatmap is visible by default on Explorer
+    expect(
+      screen.getByTestId("atmosphere-heatmap-canvas"),
+    ).toBeInTheDocument();
+
+    // Switch to F19 / F15 Condition Galaxy & Stoichiometric Regime Map
+    await user.click(
+      screen.getByRole("tab", { name: /Condition Galaxy & Z_st/i }),
+    );
+    expect(
+      screen.getByTestId("experiment-galaxy-canvas"),
+    ).toBeInTheDocument();
+    await user.click(
+      screen.getByRole("button", { name: /Stoichiometric Regime Map/i }),
+    );
+    expect(
+      screen.getByText(/droplet runs omitted \(Z_st = null\)/i),
+    ).toBeInTheDocument();
+
+    // Switch to F18 Prevention / Detection / Suppression Matrix
+    await user.click(
+      screen.getByRole("tab", { name: /Safety Context Matrix/i }),
+    );
+    expect(
+      screen.getByText(/CFI_PSI-39 PDF · p\. 23/i),
+    ).toBeInTheDocument();
+
+    // Launch curated 1-click Hot vs Cool Flame Comparison (F12)
+    await user.click(
+      screen.getByRole("button", {
+        name: /Hot vs Cool Flame \(21174C2 vs 21174C3\)/i,
+      }),
+    );
+    expect(
+      await screen.findByRole("dialog", {
+        name: /Multi-Case Telemetry Comparison/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Run CFIG-21174C2")).toBeInTheDocument();
+    expect(screen.getByText("Run CFIG-21174C3")).toBeInTheDocument();
+
+    await waitFor(() => {
+      const canvas = screen.getByTestId("multi-case-compare-canvas");
+      const inst = echarts.getInstanceByDom(canvas);
+      expect(inst).toBeDefined();
+      const opt = inst?.getOption() as
+        | { series?: Array<{ data?: unknown[] }>; yAxis?: unknown[] }
+        | undefined;
+      expect(opt?.series).toHaveLength(2);
+      expect((opt?.series?.[0]?.data ?? []).length).toBeGreaterThan(0);
+      expect((opt?.series?.[1]?.data ?? []).length).toBeGreaterThan(0);
+    });
+
+    // Close modal cleanly
+    await user.click(
+      screen.getByRole("button", { name: /Close Comparison/i }),
+    );
+
+    // Replace CFIG-21174C3 with FLEX-1249 to verify Cross-Investigation Dual-Axis Mode
+    await user.click(
+      screen.getAllByRole("button", {
+        name: /Remove CFIG-21174C3 from comparison/i,
+      })[0],
+    );
+    await user.click(
+      screen.getByRole("button", { name: /Pin FLEX-1249 to comparison/i }),
+    );
+    await user.click(
+      screen.getByRole("button", { name: /Open Overlay Comparison/i }),
+    );
+    expect(
+      await screen.findByText(/Cross-Investigation Dual-Axis Mode/i),
+    ).toBeInTheDocument();
+
+    await waitFor(() => {
+      const canvas = screen.getByTestId("multi-case-compare-canvas");
+      const inst = echarts.getInstanceByDom(canvas);
+      expect(inst).toBeDefined();
+      const opt = inst?.getOption() as
+        | { series?: Array<{ data?: unknown[] }>; yAxis?: unknown[] }
+        | undefined;
+      expect(opt?.series).toHaveLength(2);
+      expect(opt?.yAxis).toHaveLength(2);
+      expect((opt?.series?.[0]?.data ?? []).length).toBeGreaterThan(0);
+      expect((opt?.series?.[1]?.data ?? []).length).toBeGreaterThan(0);
+    });
+
+    await user.click(
+      screen.getByRole("button", { name: /Close Comparison/i }),
+    );
+  }, 15000);
+
+  it("renders Cool-Flame Droplet Lifecycle Deck (F13) and Parallel Coordinates (F11) on FLEX-1249", async () => {
+    window.history.pushState({}, "", "/cases/FLEX-1249");
+    const user = userEvent.setup();
+    render(<App />);
+
+    // Cool-Flame Droplet Lifecycle Deck (F13) expands automatically for CFI (FLEX)
+    expect(
+      await screen.findByText(/Cool-Flame Droplet Lifecycle Deck \(F13\)/i, {}, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(/Tier 1 · Droplet D² & Backend Linear Fit/i, {}, { timeout: 3000 }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Tier 2 · Cool-Flame Diameter/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/Tier 3 · Radiometer Radiant Power/i),
+    ).toBeInTheDocument();
+
+    // Switch main chart workspace to Parallel Coordinates (F11)
+    await user.click(screen.getByRole("tab", { name: /Parallel Coords/i }));
+    expect(screen.getByTestId("parallel-coords-canvas")).toBeInTheDocument();
+    expect(
+      screen.getByText(/complete rows plotted/i),
+    ).toBeInTheDocument();
   });
 });

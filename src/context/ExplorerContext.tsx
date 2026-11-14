@@ -81,6 +81,13 @@ interface ExplorerContextValue {
   cacheDatasetData: (datasetId: string, data: DatasetData) => void;
   clearDatasetCache: () => void;
 
+  comparedCaseIds: string[];
+  toggleCompareCase: (caseId: string) => void;
+  setComparedCases: (caseIds: string[]) => void;
+  clearComparedCases: () => void;
+  comparisonOpen: boolean;
+  setComparisonOpen: (open: boolean) => void;
+
   resetDemoState: () => void;
 }
 
@@ -124,6 +131,8 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
   const [datasetCache, setDatasetCache] = useState<Record<string, DatasetData>>(
     {},
   );
+  const [comparedCaseIds, setComparedCaseIds] = useState<string[]>([]);
+  const [comparisonOpen, setComparisonOpen] = useState<boolean>(false);
 
   // Monotonic counters to discard stale async responses
   const filterRevisionRef = useRef<number>(0);
@@ -368,6 +377,8 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
       setHighlightedFields([]);
       setCaseCache({});
       setDatasetCache({});
+      setComparedCaseIds([]);
+      setComparisonOpen(false);
       setDataSourceModeState(nextMode);
     },
     [bumpFilterRevision, dataSourceMode],
@@ -388,6 +399,29 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
     setDatasetCache({});
   }, []);
 
+  const toggleCompareCase = useCallback((caseId: string) => {
+    setComparedCaseIds((prev) => {
+      if (prev.includes(caseId)) {
+        const next = prev.filter((id) => id !== caseId);
+        if (next.length < 2) setComparisonOpen(false);
+        return next;
+      }
+      if (prev.length >= 4) {
+        return [...prev.slice(1), caseId];
+      }
+      return [...prev, caseId];
+    });
+  }, []);
+
+  const setComparedCases = useCallback((caseIds: string[]) => {
+    setComparedCaseIds(Array.from(new Set(caseIds)).slice(0, 4));
+  }, []);
+
+  const clearComparedCases = useCallback(() => {
+    setComparedCaseIds([]);
+    setComparisonOpen(false);
+  }, []);
+
   const resetDemoState = useCallback(() => {
     bumpFilterRevision();
     setFaultInjection("none");
@@ -401,6 +435,8 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
     setSorting([{ id: "case_id", desc: false }]);
     setCaseCache({});
     setDatasetCache({});
+    setComparedCaseIds([]);
+    setComparisonOpen(false);
     void loadOptions(dataSourceMode);
     void runSearch({}, dataSourceMode);
   }, [bumpFilterRevision, dataSourceMode, loadOptions, runSearch]);
@@ -442,6 +478,12 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
       datasetCache,
       cacheDatasetData,
       clearDatasetCache,
+      comparedCaseIds,
+      toggleCompareCase,
+      setComparedCases,
+      clearComparedCases,
+      comparisonOpen,
+      setComparisonOpen,
       resetDemoState,
     }),
     [
@@ -476,6 +518,11 @@ export function ExplorerProvider({ children }: { children: React.ReactNode }) {
       datasetCache,
       cacheDatasetData,
       clearDatasetCache,
+      comparedCaseIds,
+      toggleCompareCase,
+      setComparedCases,
+      clearComparedCases,
+      comparisonOpen,
       resetDemoState,
     ],
   );

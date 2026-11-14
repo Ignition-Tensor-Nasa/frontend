@@ -47,6 +47,14 @@ const FLEX_RESEARCH_CONTEXT: CaseResearchContext = {
     "Research-context grouping only; it does not certify fire-safety performance of any material, atmosphere or system.",
 };
 
+export const RESEARCH_CONTEXT_BY_INVESTIGATION: Record<
+  string,
+  CaseResearchContext
+> = {
+  "ACME CFI-G": CFIG_RESEARCH_CONTEXT,
+  "CFI (FLEX)": FLEX_RESEARCH_CONTEXT,
+};
+
 const CFIG_SENSOR_COLUMNS: Dataset["columns"] = [
   { key: "time_s", label: "Elapsed time", data_type: "number", unit: "s" },
   {
@@ -1379,13 +1387,14 @@ function stdDevSample(values: number[]): number {
   return Math.sqrt(sq / (values.length - 1));
 }
 
-export function getFixtureCaseNeighbors(
+export function computeStandardizedNeighbors(
   caseId: string,
+  pool: CaseSummary[],
 ): CaseNeighborsResponse | null {
-  const target = FIXTURE_CASES.find((c) => c.case_id === caseId);
+  const target = pool.find((c) => c.case_id === caseId);
   if (!target) return null;
 
-  const group = FIXTURE_CASES.filter(
+  const group = pool.filter(
     (c) =>
       c.investigation === target.investigation &&
       c.o2_pct !== null &&
@@ -1427,6 +1436,12 @@ export function getFixtureCaseNeighbors(
     .slice(0, 5);
 
   return { metric: NEIGHBOR_METRIC, items };
+}
+
+export function getFixtureCaseNeighbors(
+  caseId: string,
+): CaseNeighborsResponse | null {
+  return computeStandardizedNeighbors(caseId, FIXTURE_CASES);
 }
 
 export function searchFixtureCases(filters: Filters): SearchResponse {

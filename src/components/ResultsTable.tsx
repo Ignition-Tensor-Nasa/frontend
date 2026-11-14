@@ -12,14 +12,16 @@ import {
   ArrowDown,
   ArrowUp,
   ArrowUpDown,
+  Check,
   ChevronRight,
+  Plus,
   Search,
   SearchX,
   X,
 } from "lucide-react";
 import type { CaseSummary } from "../api/types";
 import { useExplorer } from "../context/ExplorerContext";
-import { formatNumber, kpaToPsi } from "../lib/utils";
+import { cn, formatNumber, kpaToPsi } from "../lib/utils";
 import { ActiveFilterChips } from "./ActiveFilterChips";
 
 const columnHelper = createColumnHelper<CaseSummary>();
@@ -37,6 +39,8 @@ export function ResultsTable() {
     sorting,
     setSorting,
     resetAllFilters,
+    comparedCaseIds,
+    toggleCompareCase,
   } = useExplorer();
 
   const columns = useMemo(
@@ -128,24 +132,57 @@ export function ResultsTable() {
       columnHelper.display({
         id: "actions",
         header: () => <span className="sr-only">Open</span>,
-        cell: (info) => (
-          <div className="flex justify-end">
-            <button
-              type="button"
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/cases/${encodeURIComponent(info.row.original.case_id)}`);
-              }}
-              className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/15 text-cyan-200 border border-cyan-500/35 hover:bg-cyan-500 hover:text-slate-950 transition-all cursor-pointer whitespace-nowrap"
-            >
-              <span>Open Run</span>
-              <ChevronRight className="h-3.5 w-3.5" />
-            </button>
-          </div>
-        ),
+        cell: (info) => {
+          const cid = info.row.original.case_id;
+          const pinned = comparedCaseIds.includes(cid);
+          return (
+            <div className="flex items-center justify-end gap-1.5">
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  toggleCompareCase(cid);
+                }}
+                title={
+                  pinned
+                    ? `Remove ${cid} from comparison`
+                    : `Pin ${cid} to comparison`
+                }
+                aria-label={
+                  pinned
+                    ? `Remove ${cid} from comparison`
+                    : `Pin ${cid} to comparison`
+                }
+                className={cn(
+                  "inline-flex items-center justify-center p-1.5 rounded-lg text-xs border transition-colors cursor-pointer",
+                  pinned
+                    ? "bg-orange-500/25 border-orange-400/60 text-orange-200"
+                    : "bg-slate-900/80 border-slate-700/80 text-slate-400 hover:border-orange-400/50 hover:text-orange-200",
+                )}
+              >
+                {pinned ? (
+                  <Check className="h-3.5 w-3.5" />
+                ) : (
+                  <Plus className="h-3.5 w-3.5" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/cases/${encodeURIComponent(cid)}`);
+                }}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg text-xs font-semibold bg-cyan-500/15 text-cyan-200 border border-cyan-500/35 hover:bg-cyan-500 hover:text-slate-950 transition-all cursor-pointer whitespace-nowrap"
+              >
+                <span>Open Run</span>
+                <ChevronRight className="h-3.5 w-3.5" />
+              </button>
+            </div>
+          );
+        },
       }),
     ],
-    [navigate],
+    [comparedCaseIds, navigate, toggleCompareCase],
   );
 
   const filteredResults = useMemo(() => {

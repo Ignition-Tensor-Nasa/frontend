@@ -11,6 +11,7 @@ import {
 import { useExplorer } from "../context/ExplorerContext";
 import type { DemoFaultInjection } from "../api/types";
 import { cn } from "../lib/utils";
+import { MultiCaseComparisonModal } from "./MultiCaseComparisonModal";
 
 export function AppShell({ children }: { children: React.ReactNode }) {
   const {
@@ -225,6 +226,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
       <main className="flex-1 mx-auto w-full max-w-[1440px] px-4 sm:px-6 py-5">
         {children}
       </main>
+      <MultiCaseComparisonModal />
     </div>
   );
 }

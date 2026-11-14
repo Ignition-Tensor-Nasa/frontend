@@ -4,11 +4,14 @@ import {
   AlertCircle,
   ArrowLeft,
   BookOpen,
+  Check,
   Compass,
   Download,
   ExternalLink,
   FileSpreadsheet,
+  GitCompare,
   Info,
+  Plus,
   RefreshCw,
 } from "lucide-react";
 import {
@@ -24,6 +27,7 @@ import type {
   Dataset,
   DatasetData,
 } from "../api/types";
+import { CoolFlameLifecycleDeck } from "../components/CoolFlameLifecycleDeck";
 import { TelemetryWorkspace } from "../components/TelemetryWorkspace";
 import { useExplorer } from "../context/ExplorerContext";
 import { cn, formatNumber, formatSignedDelta, kpaToPsi } from "../lib/utils";
@@ -43,6 +47,10 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
     cacheCaseDetail,
     datasetCache,
     cacheDatasetData,
+    comparedCaseIds,
+    toggleCompareCase,
+    setComparedCases,
+    setComparisonOpen,
   } = useExplorer();
 
   const [caseDetail, setCaseDetail] = useState<CaseDetail | null>(
@@ -294,6 +302,27 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
             <span className="px-2.5 py-1 rounded-md bg-slate-900/90 border border-slate-700/80 text-slate-200 font-medium">
               {caseDetail.investigation}
             </span>
+            <button
+              type="button"
+              onClick={() => toggleCompareCase(caseDetail.case_id)}
+              className={cn(
+                "inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md font-medium border transition-colors cursor-pointer",
+                comparedCaseIds.includes(caseDetail.case_id)
+                  ? "bg-orange-500/25 border-orange-400/60 text-orange-100"
+                  : "bg-slate-900/90 border-slate-700/80 text-slate-300 hover:border-orange-400/50 hover:text-orange-200",
+              )}
+            >
+              {comparedCaseIds.includes(caseDetail.case_id) ? (
+                <Check className="h-3.5 w-3.5" />
+              ) : (
+                <Plus className="h-3.5 w-3.5" />
+              )}
+              <span>
+                {comparedCaseIds.includes(caseDetail.case_id)
+                  ? "Pinned to Compare"
+                  : "Pin to Compare"}
+              </span>
+            </button>
           </div>
         </div>
 
@@ -514,6 +543,9 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
         />
       )}
 
+      {/* Synchronized Multi-Dataset Lifecycle Deck (F13) */}
+      <CoolFlameLifecycleDeck caseDetail={caseDetail} />
+
       {/* Research Context (B14) & Nearest Condition Cases (B11) */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-5">
         {caseDetail.research_context && (
@@ -622,10 +654,10 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
                       "kPa",
                     );
                     return (
-                      <li key={item.case.case_id}>
+                      <li key={item.case.case_id} className="flex items-stretch gap-2">
                         <Link
                           to={`/cases/${encodeURIComponent(item.case.case_id)}`}
-                          className="flex items-center justify-between gap-3 rounded-xl bg-slate-950/65 border border-slate-800/90 px-3 py-2 hover:border-cyan-400/50 transition-colors group"
+                          className="flex-1 min-w-0 flex items-center justify-between gap-3 rounded-xl bg-slate-950/65 border border-slate-800/90 px-3 py-2 hover:border-cyan-400/50 transition-colors group"
                         >
                           <div className="min-w-0">
                             <div className="flex items-center gap-2">
@@ -661,6 +693,18 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
                             </span>
                           </div>
                         </Link>
+                        <button
+                          type="button"
+                          title={`Compare ${caseDetail.case_id} with ${item.case.case_id}`}
+                          onClick={() => {
+                            setComparedCases([caseDetail.case_id, item.case.case_id]);
+                            setComparisonOpen(true);
+                          }}
+                          className="shrink-0 px-2.5 rounded-xl bg-slate-950/65 border border-slate-800/90 text-orange-300 hover:border-orange-400/60 hover:bg-orange-500/15 transition-colors flex items-center justify-center cursor-pointer"
+                          aria-label={`Compare with ${item.case.case_id}`}
+                        >
+                          <GitCompare className="h-3.5 w-3.5" />
+                        </button>
                       </li>
                     );
                   })}

@@ -1,3 +1,4 @@
+import { ExplorerVisualDeck } from "../components/ExplorerVisualDeck";
 import { ScenarioAssistant } from "../components/ScenarioAssistant";
 import { FilterRail } from "../components/FilterRail";
 import { ResultsTable } from "../components/ResultsTable";
@@ -9,7 +10,10 @@ export function ExplorerPage() {
 
       <div className="grid grid-cols-1 lg:grid-cols-[310px_minmax(0,1fr)] gap-5 items-start">
         <FilterRail />
-        <ResultsTable />
+        <div className="space-y-5 min-w-0">
+          <ExplorerVisualDeck />
+          <ResultsTable />
+        </div>
       </div>
     </div>
   );

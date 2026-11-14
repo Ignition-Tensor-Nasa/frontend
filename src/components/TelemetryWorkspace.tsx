@@ -1,11 +1,12 @@
 import { useState } from "react";
-import { Activity, ScatterChart as ScatterIcon } from "lucide-react";
+import { Activity, ScatterChart as ScatterIcon, SlidersHorizontal } from "lucide-react";
 import type { CaseEvent, DatasetData } from "../api/types";
 import { cn } from "../lib/utils";
 import { HeroTimeSeriesChart } from "./HeroTimeSeriesChart";
+import { ParallelCoordinatesChart } from "./ParallelCoordinatesChart";
 import { ScatterPlotChart } from "./ScatterPlotChart";
 
-type ViewMode = "timeseries" | "scatter";
+type ViewMode = "timeseries" | "scatter" | "parallel";
 
 interface TelemetryWorkspaceProps {
   datasetData: DatasetData;
@@ -67,6 +68,21 @@ export function TelemetryWorkspace({
             <ScatterIcon className="h-3.5 w-3.5" />
             <span>Scatter View</span>
           </button>
+          <button
+            type="button"
+            role="tab"
+            aria-selected={viewMode === "parallel"}
+            onClick={() => setViewMode("parallel")}
+            className={cn(
+              "px-3 py-1.5 rounded-lg font-semibold flex items-center gap-1.5 transition-all cursor-pointer",
+              viewMode === "parallel"
+                ? "bg-violet-400 text-slate-950 shadow-[0_0_16px_-4px_rgba(167,139,250,0.8)]"
+                : "text-slate-300 hover:text-white",
+            )}
+          >
+            <SlidersHorizontal className="h-3.5 w-3.5" />
+            <span>Parallel Coords</span>
+          </button>
         </div>
       </div>
 
@@ -89,8 +105,13 @@ export function TelemetryWorkspace({
           sourceLabel={sourceLabel}
           events={events}
         />
-      ) : (
+      ) : viewMode === "scatter" ? (
         <ScatterPlotChart
+          datasetData={datasetData}
+          sourceLabel={sourceLabel}
+        />
+      ) : (
+        <ParallelCoordinatesChart
           datasetData={datasetData}
           sourceLabel={sourceLabel}
         />
