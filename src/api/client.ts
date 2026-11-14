@@ -26,7 +26,9 @@ export const API_BASE_URL = (
 ).replace(/\/$/, "");
 
 export const DEFAULT_DATA_SOURCE_MODE: DataSourceMode =
-  import.meta.env.VITE_USE_FIXTURES === "false" ? "live" : "fixtures";
+  import.meta.env.MODE === "test" || import.meta.env.VITE_USE_FIXTURES === "true"
+    ? "fixtures"
+    : "live";
 
 export class ApiError extends Error {
   status: number;
