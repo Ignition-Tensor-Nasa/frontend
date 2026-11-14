@@ -7,7 +7,7 @@ DATA_DIR="${DATA_DIR:-$(cd "$FRONTEND_DIR/.." && pwd)/data}"
 
 BACKEND_HOST="${BACKEND_HOST:-127.0.0.1}"
 BACKEND_PORT="${BACKEND_PORT:-8001}"
-FRONTEND_HOST="${FRONTEND_HOST:-127.0.0.1}"
+FRONTEND_HOST="${FRONTEND_HOST:-0.0.0.0}"
 FRONTEND_PORT="${FRONTEND_PORT:-5173}"
 
 FORCE_PREPARE=false
@@ -37,7 +37,7 @@ Environment overrides:
   DATA_DIR         Path to raw NASA data  (default: ../data)
   BACKEND_HOST     FastAPI bind host      (default: 127.0.0.1)
   BACKEND_PORT     FastAPI bind port      (default: 8001)
-  FRONTEND_HOST    Vite bind host         (default: 127.0.0.1)
+  FRONTEND_HOST    Vite bind host         (default: 0.0.0.0)
   FRONTEND_PORT    Vite bind port         (default: 5173)
   PSI_AI_MODE      demo | live            (default: live if provider, model & API key are set, else demo)
   PSI_AI_PROVIDER  anthropic | openrouter (required by backend in live AI mode)
@@ -173,6 +173,11 @@ cleanup() {
 
 trap cleanup SIGINT SIGTERM EXIT
 
+echo "==> Releasing any stale listeners on ports ${BACKEND_PORT} and ${FRONTEND_PORT}"
+fuser -k "${BACKEND_PORT}/tcp" >/dev/null 2>&1 || true
+fuser -k "${FRONTEND_PORT}/tcp" >/dev/null 2>&1 || true
+sleep 0.5
+
 echo "==> Starting FastAPI backend on $BACKEND_URL (PSI_AI_MODE=$PSI_AI_MODE)"
 (
   cd "$BACKEND_DIR" &&
@@ -209,9 +214,28 @@ echo "==> Starting Vite frontend on $FRONTEND_URL (proxying /api -> $BACKEND_URL
 ) &
 FRONTEND_PID=$!
 
+echo "==> Waiting for frontend readiness at http://127.0.0.1:${FRONTEND_PORT}/"
+FRONTEND_READY=false
+for _ in $(seq 1 40); do
+  if ! kill -0 "$FRONTEND_PID" 2>/dev/null; then
+    echo "Error: frontend process exited before becoming ready." >&2
+    exit 1
+  fi
+  if "$BACKEND_DIR/.venv/bin/python" -c "import urllib.request; r = urllib.request.urlopen('http://127.0.0.1:${FRONTEND_PORT}/', timeout=1); raise SystemExit(0 if r.status == 200 else 1)" 2>/dev/null; then
+    FRONTEND_READY=true
+    break
+  fi
+  sleep 0.5
+done
+
+if [ "$FRONTEND_READY" != "true" ]; then
+  echo "Error: frontend did not respond HTTP 200 within 20s at http://127.0.0.1:${FRONTEND_PORT}/." >&2
+  exit 1
+fi
+
 echo ""
 echo "PSI-Lens is running:"
-echo "  Frontend: $FRONTEND_URL"
+echo "  Frontend: http://localhost:${FRONTEND_PORT} (and http://127.0.0.1:${FRONTEND_PORT})"
 echo "  Backend:  $BACKEND_URL"
 if [ "$PSI_AI_MODE" = "live" ]; then
   echo "  AI mode:  $PSI_AI_MODE (${PSI_AI_PROVIDER:-unset} / ${PSI_AI_MODEL:-unset})"

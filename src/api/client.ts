@@ -110,9 +110,16 @@ async function fetchJson<T>(
   }
 
   if (!response.ok) {
+    const isProxyUnreachable =
+      body === null &&
+      (response.status === 500 ||
+        response.status === 502 ||
+        response.status === 504);
     const detail = formatFastApiDetail(
       body,
-      `Backend returned HTTP ${response.status}`,
+      isProxyUnreachable
+        ? "Unable to reach the backend API. Ensure the FastAPI server is running or switch to Demo Fixtures mode."
+        : `Backend returned HTTP ${response.status}`,
     );
     throw new ApiError(response.status, detail);
   }

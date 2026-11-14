@@ -236,6 +236,15 @@ describe("End-to-end Explorer -> Case -> Back journey (F00–F09)", () => {
     ).toBeInTheDocument();
     expect(screen.getByLabelText("Research Context")).toBeInTheDocument();
     expect(
+      screen.getByLabelText("Earth Applications & NASA PSI Context"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /NASA PSI Repository \(PSI-159\)/i }),
+    ).toHaveAttribute(
+      "href",
+      "https://psi.nasa.gov/physci/repo/data/investigations/PSI-159",
+    );
+    expect(
       await screen.findByLabelText("Nearest Condition Cases"),
     ).toBeInTheDocument();
     expect(screen.getByText("CFIG-21174C3")).toBeInTheDocument();
@@ -401,6 +410,29 @@ describe("Backend main API compatibility (/datasets/{id}/data, /csv export & B11
         getDatasetData("missing-id", descriptor, { mode: "live" }),
       ).rejects.toThrow("Unknown dataset: missing-id");
       expect(fetchMock).toHaveBeenCalledTimes(2);
+    } finally {
+      fetchMock.mockRestore();
+    }
+  });
+
+  it("surfaces unreachable-backend guidance on an empty HTTP 500 proxy response", async () => {
+    const descriptor = FIXTURE_CASE_DETAILS["FLEX-1249"].datasets[3];
+    const fetchMock = vi
+      .spyOn(globalThis, "fetch")
+      .mockResolvedValueOnce(new Response(null, { status: 500 }));
+
+    try {
+      await expect(
+        getDatasetData(descriptor.dataset_id, descriptor, { mode: "live" }),
+      ).rejects.toThrowError(
+        expect.objectContaining({
+          name: "ApiError",
+          status: 500,
+          detail:
+            "Unable to reach the backend API. Ensure the FastAPI server is running or switch to Demo Fixtures mode.",
+        }),
+      );
+      expect(fetchMock).toHaveBeenCalledTimes(1);
     } finally {
       fetchMock.mockRestore();
     }
@@ -589,6 +621,15 @@ describe("Optional Hackathon Modules (F10, F11, F12, F13, F15, F18, F19, F20)", 
     expect(
       screen.getByText(/Tier 3 · Radiometer Radiant Power/i),
     ).toBeInTheDocument();
+    expect(
+      screen.getByLabelText("Earth Applications & NASA PSI Context"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole("link", { name: /Open PSI-39 on NASA PSI/i }),
+    ).toHaveAttribute(
+      "href",
+      "https://psi.nasa.gov/physci/repo/data/investigations/PSI-39",
+    );
 
     // Switch main chart workspace to Parallel Coordinates (F11)
     await user.click(screen.getByRole("tab", { name: /Parallel Coords/i }));

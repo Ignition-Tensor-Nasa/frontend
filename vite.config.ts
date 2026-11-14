@@ -13,7 +13,9 @@ export default defineConfig(({ mode }) => {
       },
     },
     server: {
+      host: true,
       port: 5173,
+      strictPort: true,
       proxy: {
         "/api": {
           target: env.VITE_BACKEND_TARGET || "http://127.0.0.1:8001",

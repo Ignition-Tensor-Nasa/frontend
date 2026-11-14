@@ -10,6 +10,7 @@ import {
   ExternalLink,
   FileSpreadsheet,
   GitCompare,
+  Globe,
   Info,
   Plus,
   RefreshCw,
@@ -31,6 +32,48 @@ import { CoolFlameLifecycleDeck } from "../components/CoolFlameLifecycleDeck";
 import { TelemetryWorkspace } from "../components/TelemetryWorkspace";
 import { useExplorer } from "../context/ExplorerContext";
 import { cn, formatNumber, formatSignedDelta, kpaToPsi } from "../lib/utils";
+
+type PsiInvestigationMetadata = {
+  accession: string;
+  officialTitle: string;
+  flightPlatform: string;
+  hardwareName: string;
+  hardwareUrl: string;
+  psiUrl: string;
+  earthBenefits: string;
+  objectivesSummary: string;
+};
+
+// Verbatim metadata from NASA PSI (combustion.json) for F22 Earth applications & deep-links.
+const PSI_INVESTIGATION_METADATA: Record<string, PsiInvestigationMetadata> = {
+  "ACME CFI-G": {
+    accession: "PSI-159",
+    officialTitle:
+      "Advanced Combustion via Microgravity Experiments / Cool Flames Investigation with Gases",
+    flightPlatform: "International Space Station (ISS)",
+    hardwareName: "ACME Combustion Integrated Rack (CIR)",
+    hardwareUrl: "https://www1.grc.nasa.gov/space/iss-research/iss-fcf/cir/",
+    psiUrl: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-159",
+    earthBenefits:
+      "Combustion provides 86% of the world’s energy and an even higher fraction of the energy used for transportation. The internal combustion engines used for transportation generally have thermal efficiencies of 38% or lower because of thermal losses. These efficiencies may increase to 60% if future engines can take advantage of ultra-lean combustion. However, this progress is being impeded by the limited understanding of the chemistry of cool flames. Research into cool diffusion flames (whose peak temperatures are 500 – 1000 K) has grown exponentially since they were discovered in 2012. The measurements performed for this project will help to test and advance cool flame kinetics mechanisms. This should facilitate the development of more efficient internal combustion engines.",
+    objectivesSummary:
+      "Determine the conditions for which cool diffusion flames occur for propane, n-butane, and n-pentane (normal and inverse flames across Zst, Tad, and flow rate) on the ISS, and test chemical kinetics mechanisms against CFD predictions.",
+  },
+  "CFI (FLEX)": {
+    accession: "PSI-39",
+    officialTitle: "Cool Flames Investigation (CFI)",
+    flightPlatform: "International Space Station (ISS)",
+    hardwareName:
+      "Multi-User Droplet Combustion Apparatus (MDCA) / Combustion Integrated Rack (CIR)",
+    hardwareUrl:
+      "https://www1.grc.nasa.gov/space/iss-research/iss-fcf/combustion-science/mdca/",
+    psiUrl: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-39",
+    earthBenefits:
+      "A basic understanding of cool flames is important for understanding ignition phenomena of practical fuels and fuel additives. Cool flames play a key role in the development and selection of new fuels and the design of advanced engines such as clean, high-efficiency Homogeneous Charge Compression Ignition (HCCI) engines. The research will also help combustion chemists to develop new computational models to compute combustion performance in for many practical applications on earth, including an understanding of how cool flame reactivity determines octane and cetane number for fuels in spark ignition and diesel engines. Cool Flames Investigation (CFI) will provide critical validation for complex chemical kinetic mechanisms, advance the understanding of flame dynamics and instabilities in low-temperature combustion, and support the design of safer spacecraft systems by refining knowledge of combustion in microgravity environments.",
+    objectivesSummary:
+      "Examine n-dodecane and n-dodecane/iso-dodecane droplet combustion across 0.25–5 atm and helium-diluted atmospheres to quantify droplet size, pressure, cool-flame extinction, and soot formation.",
+  },
+};
 
 export function CaseDetailPage() {
   const { caseId = "" } = useParams<{ caseId: string }>();
@@ -282,6 +325,9 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
     );
   }
 
+  const psiMeta = PSI_INVESTIGATION_METADATA[caseDetail.investigation];
+  const resolvedSourceUrl = caseDetail.source_url ?? psiMeta?.psiUrl ?? null;
+
   return (
     <div className="space-y-5 animate-panel-in">
       {/* Top Navigation & Case Identity Strip (F05) */}
@@ -401,14 +447,18 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
             </span>
             <span className="truncate">{caseDetail.source_label}</span>
           </div>
-          {caseDetail.source_url && (
+          {resolvedSourceUrl && (
             <a
-              href={caseDetail.source_url}
+              href={resolvedSourceUrl}
               target="_blank"
               rel="noreferrer"
               className="inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 underline underline-offset-4 shrink-0"
             >
-              <span>NASA PSI Source</span>
+              <span>
+                {psiMeta
+                  ? `NASA PSI Repository (${psiMeta.accession})`
+                  : "NASA PSI Source"}
+              </span>
               <ExternalLink className="h-3 w-3" />
             </a>
           )}
@@ -513,11 +563,10 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
               </p>
               {dataSourceMode === "live" && (
                 <p className="text-xs text-slate-400 pt-1">
-                  Note: Dataset loader requests JSON from{" "}
-                  <code>/api/v1/datasets/&#123;dataset_id&#125;/data</code>{" "}
-                  (falling back to{" "}
-                  <code>/api/v1/datasets/&#123;dataset_id&#125;/csv</code>{" "}
-                  when 404). Ensure backend curated data is prepared or switch to Demo Fixtures in the header.
+                  Note: Dataset loader requests Parquet-backed JSON from{" "}
+                  <code>/api/v1/datasets/&#123;dataset_id&#125;/data</code>.
+                  Ensure backend curated data is prepared or switch to Demo
+                  Fixtures in the header.
                 </p>
               )}
             </div>
@@ -718,6 +767,77 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
           )}
         </section>
       </div>
+
+      {/* Earth Applications & Official NASA PSI Investigation Context (F22) */}
+      {psiMeta && (
+        <section
+          aria-label="Earth Applications & NASA PSI Context"
+          className="panel-surface rounded-2xl p-4 sm:p-5 space-y-3"
+        >
+          <div className="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+            <div className="flex items-center gap-2">
+              <Globe className="h-4 w-4 text-emerald-400" />
+              <h2 className="text-sm font-semibold text-white">
+                Earth Applications &amp; NASA PSI Investigation Context (F22)
+              </h2>
+            </div>
+            <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono-telemetry">
+              <span className="px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-400/35 text-emerald-200">
+                {psiMeta.accession}
+              </span>
+              <span className="px-2 py-0.5 rounded-full bg-slate-900 border border-slate-700 text-slate-300">
+                {psiMeta.flightPlatform}
+              </span>
+              <a
+                href={psiMeta.hardwareUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-slate-900 border border-cyan-500/35 text-cyan-200 hover:border-cyan-400 transition-colors"
+              >
+                <span>{psiMeta.hardwareName}</span>
+                <ExternalLink className="h-3 w-3" />
+              </a>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 text-xs leading-relaxed">
+            <div className="lg:col-span-2 rounded-xl bg-slate-950/65 border border-slate-800/90 p-3.5 space-y-1.5">
+              <span className="block text-[10px] font-mono-telemetry uppercase tracking-wider text-emerald-300">
+                Research Impacts / Earth Benefits
+              </span>
+              <p className="text-slate-200">{psiMeta.earthBenefits}</p>
+            </div>
+
+            <div className="rounded-xl bg-slate-950/65 border border-slate-800/90 p-3.5 space-y-1.5">
+              <span className="block text-[10px] font-mono-telemetry uppercase tracking-wider text-cyan-300">
+                Investigation Objectives
+              </span>
+              <p className="text-slate-300">{psiMeta.objectivesSummary}</p>
+              <p className="text-[11px] text-slate-400 pt-1">
+                {psiMeta.officialTitle}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 border-t border-slate-800/70 pt-2">
+            <span>
+              Source: NASA Physical Sciences Informatics (PSI) Repository —{" "}
+              {psiMeta.accession}, verbatim &ldquo;Research Impacts/Earth
+              Benefits&rdquo; metadata; research context only, not a commercial
+              validation or safety certification.
+            </span>
+            <a
+              href={psiMeta.psiUrl}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-1 text-cyan-300 hover:text-cyan-200 underline underline-offset-4 shrink-0"
+            >
+              <span>Open {psiMeta.accession} on NASA PSI</span>
+              <ExternalLink className="h-3 w-3" />
+            </a>
+          </div>
+        </section>
+      )}
     </div>
   );
 }
