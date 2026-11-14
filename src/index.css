@@ -1,0 +1,142 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    color-scheme: dark;
+    --bg-orbital: #060913;
+    --bg-panel: #0b1222;
+    --bg-panel-elevated: #111b33;
+    --border-subtle: rgba(148, 163, 184, 0.16);
+    --border-cyan: rgba(34, 211, 238, 0.35);
+    --accent-cyan: #22d3ee;
+    --accent-orange: #fb923c;
+  }
+
+  body {
+    background-color: var(--bg-orbital);
+    color: #e2e8f0;
+    font-family:
+      Inter,
+      ui-sans-serif,
+      system-ui,
+      -apple-system,
+      BlinkMacSystemFont,
+      "Segoe UI",
+      Roboto,
+      sans-serif;
+    background-image:
+      radial-gradient(circle at 15% 10%, rgba(14, 165, 233, 0.11), transparent 36%),
+      radial-gradient(circle at 85% 0%, rgba(249, 115, 22, 0.08), transparent 32%),
+      linear-gradient(to right, rgba(30, 41, 59, 0.25) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(30, 41, 59, 0.25) 1px, transparent 1px);
+    background-size:
+      100% 100%,
+      100% 100%,
+      48px 48px,
+      48px 48px;
+    background-attachment: fixed;
+    min-height: 100vh;
+  }
+}
+
+.font-mono-telemetry {
+  font-family:
+    "JetBrains Mono",
+    "Fira Code",
+    ui-monospace,
+    SFMono-Regular,
+    Menlo,
+    Monaco,
+    Consolas,
+    monospace;
+  font-variant-numeric: tabular-nums;
+}
+
+.panel-surface {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.9) 0%,
+    rgba(9, 14, 28, 0.94) 100%
+  );
+  border: 1px solid rgba(148, 163, 184, 0.16);
+  box-shadow:
+    0 18px 40px -24px rgba(2, 6, 23, 0.9),
+    inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
+.panel-surface-cyan {
+  background: linear-gradient(
+    180deg,
+    rgba(15, 23, 42, 0.92) 0%,
+    rgba(8, 15, 32, 0.96) 100%
+  );
+  border: 1px solid rgba(34, 211, 238, 0.28);
+  box-shadow:
+    0 0 28px -14px rgba(34, 211, 238, 0.3),
+    inset 0 1px 0 rgba(34, 211, 238, 0.08);
+}
+
+@keyframes assistantPulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0.55);
+    border-color: rgba(34, 211, 238, 0.9);
+  }
+  50% {
+    box-shadow: 0 0 0 6px rgba(34, 211, 238, 0.15);
+    border-color: rgba(251, 146, 60, 0.85);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 211, 238, 0);
+  }
+}
+
+@keyframes panelFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-assistant-highlight {
+  animation: assistantPulse 1.6s ease-out 2;
+}
+
+.animate-panel-in {
+  animation: panelFadeIn 220ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-assistant-highlight,
+  .animate-panel-in {
+    animation: none !important;
+  }
+  * {
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Custom sleek range slider styling for mission-control filter rail */
+input[type="range"].telemetry-slider {
+  accent-color: #22d3ee;
+}
+
+/* Subtle dark scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: rgba(15, 23, 42, 0.6);
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(71, 85, 105, 0.6);
+  border-radius: 9999px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(34, 211, 238, 0.5);
+}
