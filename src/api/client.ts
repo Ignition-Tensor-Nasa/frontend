@@ -185,86 +185,6 @@ export async function getCaseDetail(
   });
 }
 
-function parseCsvRow(line: string): string[] {
-  const fields: string[] = [];
-  let current = "";
-  let inQuotes = false;
-  for (let i = 0; i < line.length; i += 1) {
-    const ch = line[i];
-    if (inQuotes) {
-      if (ch === '"') {
-        if (line[i + 1] === '"') {
-          current += '"';
-          i += 1;
-        } else {
-          inQuotes = false;
-        }
-      } else {
-        current += ch;
-      }
-    } else if (ch === '"') {
-      inQuotes = true;
-    } else if (ch === ",") {
-      fields.push(current);
-      current = "";
-    } else {
-      current += ch;
-    }
-  }
-  fields.push(current);
-  return fields;
-}
-
-function parseBackendNormalizedCsv(
-  csvText: string,
-  expectedDataset: Dataset,
-): DatasetData {
-  const normalized = csvText.replace(/\r\n/g, "\n").replace(/\r/g, "\n");
-  const lines = normalized.split("\n").filter((line) => line.length > 0);
-  if (lines.length === 0) {
-    throw new ApiError(422, "Backend CSV response is empty.");
-  }
-
-  const header = parseCsvRow(lines[0]);
-  const expectedKeys = expectedDataset.columns.map((c) => c.key);
-  if (
-    header.length !== expectedKeys.length ||
-    header.some((key, idx) => key !== expectedKeys[idx])
-  ) {
-    throw new ApiError(
-      422,
-      `CSV header mismatch: expected [${expectedKeys.join(", ")}], received [${header.join(", ")}].`,
-    );
-  }
-
-  const rows: (number | string | null)[][] = [];
-  for (let i = 1; i < lines.length; i += 1) {
-    const cells = parseCsvRow(lines[i]);
-    if (cells.length !== expectedDataset.columns.length) {
-      throw new ApiError(
-        422,
-        `CSV row ${i} column count (${cells.length}) does not match descriptor (${expectedDataset.columns.length}).`,
-      );
-    }
-    const row = cells.map((cell, colIdx) => {
-      if (cell === "") return null;
-      const col = expectedDataset.columns[colIdx];
-      if (col.data_type === "number") {
-        const num = Number(cell);
-        return Number.isFinite(num) ? num : cell;
-      }
-      return cell;
-    });
-    rows.push(row);
-  }
-
-  return {
-    dataset: expectedDataset,
-    rows,
-    note: expectedDataset.note ?? null,
-  };
-}
-
 export async function getCaseNeighbors(
   caseId: string,
   config: ApiClientConfig,
@@ -321,45 +241,10 @@ export async function getDatasetData(
     return validation.data;
   }
 
-  let raw: unknown;
-  try {
-    raw = await fetchJson<unknown>(
-      `/api/v1/datasets/${encodeURIComponent(datasetId)}/data`,
-      { signal },
-    );
-  } catch (err) {
-    // Backend polars-analysis-2 exposes pre-normalized CSV at /datasets/{id}/csv (B05)
-    if (err instanceof ApiError && err.status === 404 && expectedDataset) {
-      let csvResp: Response;
-      try {
-        csvResp = await fetch(getDatasetCsvDownloadUrl(datasetId), { signal });
-      } catch (fetchErr) {
-        if (fetchErr instanceof DOMException && fetchErr.name === "AbortError") {
-          throw fetchErr;
-        }
-        throw new ApiError(
-          0,
-          "Unable to reach the backend API while loading dataset CSV.",
-        );
-      }
-      if (!csvResp.ok) {
-        const text = await csvResp.text().catch(() => "");
-        let detail = `Backend returned HTTP ${csvResp.status}`;
-        if (text) {
-          try {
-            detail = formatFastApiDetail(JSON.parse(text), detail);
-          } catch {
-            detail = text;
-          }
-        }
-        throw new ApiError(csvResp.status, detail);
-      }
-      const csvText = await csvResp.text();
-      raw = parseBackendNormalizedCsv(csvText, expectedDataset);
-    } else {
-      throw err;
-    }
-  }
+  const raw = await fetchJson<unknown>(
+    `/api/v1/datasets/${encodeURIComponent(datasetId)}/data`,
+    { signal },
+  );
 
   const validation = validateDatasetData(raw, expectedDataset);
   if (!validation.ok) {

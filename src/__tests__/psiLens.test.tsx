@@ -344,7 +344,7 @@ describe("43-case benchmark fixture parity with backend manifest", () => {
   });
 });
 
-describe("Backend polars-analysis-2 compatibility (B05 CSV fallback & B11 neighbors)", () => {
+describe("Backend main API compatibility (/datasets/{id}/data, /csv export & B11 neighbors)", () => {
   it("computes B11 neighbors within same investigation and returns empty when O2 is null (FLEX-1213)", () => {
     const flex1213 = getFixtureCaseNeighbors("FLEX-1213");
     expect(flex1213?.items).toEqual([]);
@@ -356,29 +356,32 @@ describe("Backend polars-analysis-2 compatibility (B05 CSV fallback & B11 neighb
     ).toBe(true);
   });
 
-  it("falls back to backend B05 /csv when /data responds 404 in live mode and preserves nulls", async () => {
-    const descriptor = {
-      ...FIXTURE_CASE_DETAILS["FLEX-1249"].datasets[3],
-      note: "Backend descriptor note",
-    };
+  it("loads native Parquet JSON from /data in live mode and surfaces 404 without /csv fallback", async () => {
+    const descriptor = FIXTURE_CASE_DETAILS["FLEX-1249"].datasets[3];
     const fetchMock = vi
       .spyOn(globalThis, "fetch")
-      .mockImplementation(async (input) => {
-        const url = String(input);
-        if (url.endsWith("/data")) {
-          return new Response(JSON.stringify({ detail: "Not Found" }), {
-            status: 404,
-            headers: { "Content-Type": "application/json" },
-          });
-        }
-        return new Response(
-          "time_s,D2_mm2,D2_fit_mm2\n0.6,17.084,\n4.667,15.589,15.5618\n",
+      .mockResolvedValueOnce(
+        new Response(
+          JSON.stringify({
+            dataset: descriptor,
+            rows: [
+              [0.6, 17.084, null],
+              [4.667, 15.589, 15.5618],
+            ],
+            note: "Derived for this project",
+          }),
           {
             status: 200,
-            headers: { "Content-Type": "text/csv; charset=utf-8" },
+            headers: { "Content-Type": "application/json" },
           },
-        );
-      });
+        ),
+      )
+      .mockResolvedValueOnce(
+        new Response(JSON.stringify({ detail: "Unknown dataset: missing-id" }), {
+          status: 404,
+          headers: { "Content-Type": "application/json" },
+        }),
+      );
 
     try {
       const loaded = await getDatasetData(descriptor.dataset_id, descriptor, {
@@ -388,7 +391,16 @@ describe("Backend polars-analysis-2 compatibility (B05 CSV fallback & B11 neighb
         [0.6, 17.084, null],
         [4.667, 15.589, 15.5618],
       ]);
-      expect(loaded.note).toBe("Backend descriptor note");
+      expect(loaded.note).toBe("Derived for this project");
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+      expect(String(fetchMock.mock.calls[0]?.[0])).toContain(
+        `/api/v1/datasets/${descriptor.dataset_id}/data`,
+      );
+
+      await expect(
+        getDatasetData("missing-id", descriptor, { mode: "live" }),
+      ).rejects.toThrow("Unknown dataset: missing-id");
+      expect(fetchMock).toHaveBeenCalledTimes(2);
     } finally {
       fetchMock.mockRestore();
     }

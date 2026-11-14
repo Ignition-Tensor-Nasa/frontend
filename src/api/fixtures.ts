@@ -1269,67 +1269,67 @@ const SPECIFIC_DATASET_DATA: Record<string, DatasetData> = {
   "CFIG-21291C1-sensors": {
     dataset: FIXTURE_CASE_DETAILS["CFIG-21291C1"].datasets[0],
     rows: ROWS_21291C1,
-    note: "Sampled from NASA PSI-159 Raw Data 21291C1 (125 Hz source recording, 40 representative points across 275.8 s). Units are not stated in source CSV, so raw voltage channels are labelled unitless (null).",
+    note: "Fixture excerpt (40 points across 275.8 s; connect to Live API for the full 125 Hz Parquet recording). Channel units are not stated in the source files, so raw values remain unconverted (null unit); time_s counts from the first sample.",
   },
   "CFIG-21291C1-mfc-setpoints": {
     dataset: FIXTURE_CASE_DETAILS["CFIG-21291C1"].datasets[1],
     rows: ROWS_21291C1_SP,
-    note: "Commanded Mass Flow Controller (MFC) setpoints in Volts (V) aligned to t=0 of sensor recording.",
+    note: "Commanded setpoint log as recorded in Volts (V); time_s shares the sensor recording zero.",
   },
   "CFIG-21174C3-sensors": {
     dataset: FIXTURE_CASE_DETAILS["CFIG-21174C3"].datasets[0],
     rows: ROWS_21174C3,
-    note: "Sampled from NASA PSI-159 Raw Data 21174C3 (cool-flame run, PCI-D). Raw channel units are null in source files.",
+    note: "Fixture excerpt from NASA PSI-159 Raw Data 21174C3 (cool-flame run, PCI-D; Live API serves full 125 Hz Parquet). Channel units are not stated in source files (unitless / null).",
   },
   "CFIG-21174C2-sensors": {
     dataset: FIXTURE_CASE_DETAILS["CFIG-21174C2"].datasets[0],
     rows: ROWS_21174C2,
-    note: "Sampled from NASA PSI-159 Raw Data 21174C2 (hot-flame counterpart to 21174C3). Raw channel units are null in source files.",
+    note: "Fixture excerpt from NASA PSI-159 Raw Data 21174C2 (hot-flame counterpart to 21174C3; Live API serves full 125 Hz Parquet). Channel units are not stated in source files (unitless / null).",
   },
   "CFIG-21106F5-sensors": {
     dataset: FIXTURE_CASE_DETAILS["CFIG-21106F5"].datasets[0],
     rows: ROWS_21106F5,
-    note: "Sampled from NASA PSI-159 Raw Data 21106F5 (direct cool flame without hot ignition at 50.665 kPa). Raw channel units are null.",
+    note: "Fixture excerpt from NASA PSI-159 Raw Data 21106F5 (direct cool flame without hot ignition at 50.665 kPa; Live API serves full 125 Hz Parquet). Channel units are null.",
   },
   "CFIG-21088P1-sensors": {
     dataset: FIXTURE_CASE_DETAILS["CFIG-21088P1"].datasets[0],
     rows: ROWS_21088P1,
-    note: "Sampled from NASA PSI-159 Raw Data 21088P1 (18.0% O₂ ethane run). Raw channel units are null.",
+    note: "Fixture excerpt from NASA PSI-159 Raw Data 21088P1 (18.0% O₂ ethane run; Live API serves full 125 Hz Parquet). Channel units are null.",
   },
   "FLEX-1213-droplet": {
     dataset: FIXTURE_CASE_DETAILS["FLEX-1213"].datasets[0],
     rows: ROWS_FLEX_1213_DROPLET,
-    note: "Sampled from NASA PSI-39 FLEX-1213_DropletData.txt; null at t = 44.02 s reflects an unmeasured optical frame.",
+    note: "Fixture excerpt from NASA PSI-39 FLEX-1213_DropletData.txt; null at t = 44.02 s reflects an unmeasured optical frame. Time is the file's own time column.",
   },
   "FLEX-1213-coolflame": {
     dataset: FIXTURE_CASE_DETAILS["FLEX-1213"].datasets[1],
     rows: ROWS_FLEX_1213_COOLFLAME,
-    note: "Sampled from NASA PSI-39 FLEX-1213_CoolFlameData.txt (starts at t = 6.8 s).",
+    note: "Fixture excerpt from NASA PSI-39 FLEX-1213_CoolFlameData.txt (starts at t = 6.8 s on the file's own time column).",
   },
   "FLEX-1213-radiometer": {
     dataset: FIXTURE_CASE_DETAILS["FLEX-1213"].datasets[2],
     rows: ROWS_FLEX_1213_RADIOMETER,
-    note: "Sampled from NASA PSI-39 FLEX-1213_RadiometerData.txt; wide-band values are large and negative in the source file and shown unconverted.",
+    note: "Fixture excerpt from NASA PSI-39 FLEX-1213_RadiometerData.txt; wide-band values are large and negative in the source file and are shown as provided.",
   },
   "FLEX-1249-droplet": {
     dataset: FIXTURE_CASE_DETAILS["FLEX-1249"].datasets[0],
     rows: ROWS_FLEX_1249_DROPLET,
-    note: "Sampled from NASA PSI-39 FLEX-1249_DropletData.txt (source time base).",
+    note: "Fixture excerpt from NASA PSI-39 FLEX-1249_DropletData.txt (file's own time column; Live API serves every source sample from Parquet).",
   },
   "FLEX-1249-coolflame": {
     dataset: FIXTURE_CASE_DETAILS["FLEX-1249"].datasets[1],
     rows: ROWS_FLEX_1249_COOLFLAME,
-    note: "Sampled from NASA PSI-39 FLEX-1249_CoolFlameData.txt.",
+    note: "Fixture excerpt from NASA PSI-39 FLEX-1249_CoolFlameData.txt (Live API serves every source sample from Parquet).",
   },
   "FLEX-1249-radiometer": {
     dataset: FIXTURE_CASE_DETAILS["FLEX-1249"].datasets[2],
     rows: ROWS_FLEX_1249_RADIOMETER,
-    note: "Sampled from NASA PSI-39 FLEX-1249_RadiometerData.txt.",
+    note: "Fixture excerpt from NASA PSI-39 FLEX-1249_RadiometerData.txt; wide-band values are shown as provided.",
   },
   "FLEX-1249-d2-fit": {
     dataset: FIXTURE_CASE_DETAILS["FLEX-1249"].datasets[3],
     rows: ROWS_FLEX_1249_D2_FIT,
-    note: "B12 D² = DropletDiameter_mm² and ordinary least-squares fit line (t = 4–36 s, K = 0.417 mm²/s, R² = 0.9998); D2_fit_mm2 is null outside the fit window.",
+    note: "Derived for this project, not a NASA series (fixture excerpt): D² = droplet diameter squared; the line is an ordinary least-squares fit over 4-36 s (hand-chosen window, K = 0.417 mm²/s, R² = 0.9998) and is null outside that window. No uncertainty band.",
   },
 };
 
@@ -1367,8 +1367,8 @@ export function getFixtureDatasetData(datasetId: string): DatasetData | null {
             ? ROWS_FLEX_1249_RADIOMETER
             : ROWS_21174C3,
     note: isSetpoint
-      ? "Fixture setpoint profile (V) aligned to t=0."
-      : "Fixture demo telemetry curve; connect to live backend for this run's full recording.",
+      ? "Fixture setpoint profile (V) sharing the sensor zero time; connect to Live API for full Parquet log."
+      : "Fixture demo telemetry curve; connect to Live API for this run's full Parquet recording.",
   };
 }
 

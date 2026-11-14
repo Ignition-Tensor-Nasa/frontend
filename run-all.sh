@@ -33,13 +33,15 @@ Options:
   -h, --help     Show this help message
 
 Environment overrides:
-  BACKEND_DIR    Path to backend repo   (default: ../backend)
-  DATA_DIR       Path to raw NASA data  (default: ../data)
-  BACKEND_HOST   FastAPI bind host      (default: 127.0.0.1)
-  BACKEND_PORT   FastAPI bind port      (default: 8001)
-  FRONTEND_HOST  Vite bind host         (default: 127.0.0.1)
-  FRONTEND_PORT  Vite bind port         (default: 5173)
-  PSI_AI_MODE    demo | live            (default: live if ANTHROPIC_API_KEY is set, else demo)
+  BACKEND_DIR      Path to backend repo   (default: ../backend)
+  DATA_DIR         Path to raw NASA data  (default: ../data)
+  BACKEND_HOST     FastAPI bind host      (default: 127.0.0.1)
+  BACKEND_PORT     FastAPI bind port      (default: 8001)
+  FRONTEND_HOST    Vite bind host         (default: 127.0.0.1)
+  FRONTEND_PORT    Vite bind port         (default: 5173)
+  PSI_AI_MODE      demo | live            (default: live if provider, model & API key are set, else demo)
+  PSI_AI_PROVIDER  anthropic | openrouter (required by backend in live AI mode)
+  PSI_AI_MODEL     Model ID for provider  (required by backend in live AI mode)
 EOF
       exit 0
       ;;
@@ -79,6 +81,10 @@ else
   (cd "$BACKEND_DIR" && .venv/bin/pip install -r requirements.txt openpyxl)
 fi
 
+CALLER_PSI_AI_MODE="${PSI_AI_MODE:-}"
+CALLER_PSI_AI_PROVIDER="${PSI_AI_PROVIDER:-}"
+CALLER_PSI_AI_MODEL="${PSI_AI_MODEL:-}"
+
 if [ -f "$BACKEND_DIR/.env" ]; then
   echo "==> Loading environment variables from $BACKEND_DIR/.env"
   set -a
@@ -87,7 +93,15 @@ if [ -f "$BACKEND_DIR/.env" ]; then
   set +a
 fi
 
-if [ "$FORCE_PREPARE" = "true" ] || [ ! -f "$BACKEND_DIR/data/curated/catalogue.parquet" ]; then
+[ -n "$CALLER_PSI_AI_MODE" ] && PSI_AI_MODE="$CALLER_PSI_AI_MODE"
+[ -n "$CALLER_PSI_AI_PROVIDER" ] && PSI_AI_PROVIDER="$CALLER_PSI_AI_PROVIDER"
+[ -n "$CALLER_PSI_AI_MODEL" ] && PSI_AI_MODEL="$CALLER_PSI_AI_MODEL"
+
+PARQUET_DIR="$BACKEND_DIR/data/curated/parquet"
+if [ "$FORCE_PREPARE" = "true" ] \
+  || [ ! -f "$BACKEND_DIR/data/curated/catalogue.parquet" ] \
+  || [ ! -d "$PARQUET_DIR" ] \
+  || [ -z "$(ls -A "$PARQUET_DIR" 2>/dev/null)" ]; then
   if [ ! -d "$DATA_DIR" ]; then
     echo "Error: raw data directory not found at: $DATA_DIR" >&2
     echo "Place NASA PSI datasets in ../data or set DATA_DIR=/path/to/data." >&2
@@ -96,7 +110,7 @@ if [ "$FORCE_PREPARE" = "true" ] || [ ! -f "$BACKEND_DIR/data/curated/catalogue.
   echo "==> Preparing curated NASA datasets from $DATA_DIR"
   (cd "$BACKEND_DIR" && .venv/bin/python -m data_prep.prepare --data-dir "$DATA_DIR")
 else
-  echo "==> Curated data already present at $BACKEND_DIR/data/curated/catalogue.parquet (pass --prepare to rebuild)"
+  echo "==> Curated Parquet data already present at $BACKEND_DIR/data/curated (pass --prepare to rebuild)"
 fi
 
 echo "==> Checking frontend dependencies in $FRONTEND_DIR"
@@ -115,8 +129,24 @@ if [ "$SETUP_ONLY" = "true" ]; then
   exit 0
 fi
 
-if [ -z "${PSI_AI_MODE:-}" ]; then
-  if [ -n "${ANTHROPIC_API_KEY:-}" ]; then
+has_live_ai_config() {
+  local provider
+  provider="$(printf '%s' "${PSI_AI_PROVIDER:-}" | tr '[:upper:]' '[:lower:]')"
+  [ -n "${PSI_AI_MODEL:-}" ] || return 1
+  case "$provider" in
+    anthropic) [ -n "${ANTHROPIC_API_KEY:-}" ] ;;
+    openrouter) [ -n "${OPENROUTER_API_KEY:-}" ] ;;
+    *) return 1 ;;
+  esac
+}
+
+if [ -n "$CALLER_PSI_AI_MODE" ]; then
+  PSI_AI_MODE="$CALLER_PSI_AI_MODE"
+elif [ "${PSI_AI_MODE:-}" = "live" ] && ! has_live_ai_config; then
+  echo "Warning: PSI_AI_MODE=live in .env has incomplete provider/model/key config; falling back to PSI_AI_MODE=demo (pass PSI_AI_MODE=live explicitly to override)." >&2
+  PSI_AI_MODE="demo"
+elif [ -z "${PSI_AI_MODE:-}" ]; then
+  if has_live_ai_config; then
     PSI_AI_MODE="live"
   else
     PSI_AI_MODE="demo"
@@ -183,7 +213,11 @@ echo ""
 echo "PSI-Lens is running:"
 echo "  Frontend: $FRONTEND_URL"
 echo "  Backend:  $BACKEND_URL"
-echo "  AI mode:  $PSI_AI_MODE"
+if [ "$PSI_AI_MODE" = "live" ]; then
+  echo "  AI mode:  $PSI_AI_MODE (${PSI_AI_PROVIDER:-unset} / ${PSI_AI_MODEL:-unset})"
+else
+  echo "  AI mode:  $PSI_AI_MODE"
+fi
 echo "Press Ctrl+C to stop both servers."
 echo ""
 
