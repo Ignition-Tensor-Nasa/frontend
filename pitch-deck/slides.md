@@ -12,48 +12,48 @@ mdc: true
 ---
 
 <div class="h-full flex flex-col justify-between py-1">
-  <div class="space-y-2.5">
+  <div class="space-y-3">
     <div class="flex flex-wrap items-center justify-between gap-2">
-      <span class="px-3 py-1 rounded-full text-xs font-mono tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-400/35">
+      <span class="px-3.5 py-1.5 rounded-full text-xs font-mono tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-400/35">
         NASA Physical Sciences Informatics · Mission Control
       </span>
-      <span class="px-3 py-1 rounded-full text-xs font-mono text-orange-300 bg-orange-500/10 border border-orange-400/30">
+      <span class="px-3.5 py-1.5 rounded-full text-xs font-mono text-orange-300 bg-orange-500/10 border border-orange-400/30">
         PSI-LENS // 3-Minute Jury Pitch
       </span>
     </div>
-    <div class="px-4 py-2.5 rounded-xl bg-orange-500/15 border border-orange-400/45 text-lg font-bold tracking-tight text-white leading-snug">
+    <div class="px-5 py-3 rounded-xl bg-orange-500/15 border border-orange-400/45 text-xl font-extrabold tracking-tight text-white leading-snug">
       <span class="text-orange-300">Challenge:</span> Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data
     </div>
   </div>
 
-  <div class="space-y-4 max-w-4xl">
-    <div class="text-5xl font-extrabold tracking-tight leading-tight text-white">
+  <div class="space-y-4 w-full">
+    <div class="text-[52px] font-extrabold tracking-tight leading-[1.08] text-white">
       Fire in Space Breaks<br />
       <span class="bg-gradient-to-r from-cyan-300 via-sky-300 to-orange-300 bg-clip-text text-transparent">
         Every Earth Intuition
       </span>
     </div>
-    <p class="text-lg text-slate-300 leading-relaxed max-w-3xl">
+    <p class="text-xl text-slate-200 leading-relaxed">
       <strong>PSI-Lens</strong> turns 358 fragmented NASA Physical Sciences Informatics CSV &amp; XLSX experiments into one real-time Mission Control dashboard - from natural-language hypothesis to verified spacecraft fire telemetry.
     </p>
   </div>
 
   <div class="grid grid-cols-3 gap-4">
-    <div class="metric-pill rounded-xl px-4 py-3">
-      <div class="text-2xl font-bold font-mono text-cyan-300">358</div>
-      <div class="text-xs text-slate-400 mt-0.5">Verified NASA PSI Combustion Runs</div>
+    <div class="metric-pill rounded-xl px-5 py-4">
+      <div class="text-3xl font-bold font-mono text-cyan-300">358</div>
+      <div class="text-sm text-slate-300 mt-1">Verified NASA PSI Combustion Runs</div>
     </div>
-    <div class="metric-pill rounded-xl px-4 py-3">
-      <div class="text-2xl font-bold font-mono text-orange-300">6 Missions</div>
-      <div class="text-xs text-slate-400 mt-0.5">CFI/FLEX · E-FIELD · Flame Design · SAME-R · SAFFIRE-III</div>
+    <div class="metric-pill rounded-xl px-5 py-4">
+      <div class="text-3xl font-bold font-mono text-orange-300">6 Missions</div>
+      <div class="text-sm text-slate-300 mt-1">CFI/FLEX · E-FIELD · Flame Design · SAME-R · SAFFIRE-III</div>
     </div>
-    <div class="metric-pill rounded-xl px-4 py-3">
-      <div class="text-2xl font-bold font-mono text-emerald-300">30 Hz + 1 Hz</div>
-      <div class="text-xs text-slate-400 mt-0.5">Parquet + Polars Streaming &amp; LLM Briefing</div>
+    <div class="metric-pill rounded-xl px-5 py-4">
+      <div class="text-3xl font-bold font-mono text-emerald-300">30 Hz + 1 Hz</div>
+      <div class="text-sm text-slate-300 mt-1">Parquet + Polars Streaming &amp; LLM Briefing</div>
     </div>
   </div>
 
-  <div class="pt-3 border-t border-white/10 space-y-1.5 text-sm text-slate-200">
+  <div class="pt-3 border-t border-white/10 space-y-2 text-base text-slate-200">
     <div>
       <span class="font-mono font-semibold uppercase text-cyan-300 mr-2">NASA Sources:</span>
       <span class="font-medium">psi.nasa.gov (PSI-159 CFI-G · PSI-39 CFI/FLEX · PSI-10 Flame Design · PSI-100 SAFFIRE-III · PSI-22 E-FIELD · PSI-101 SAME-R) · GRC · NTRS</span>
@@ -84,7 +84,7 @@ title: Microgravity Combustion & Mission Overview
   </div>
 
   <div class="gif-stage rounded-xl p-2 flex-1 min-h-0 flex items-center justify-center overflow-hidden">
-    <img src="/pitch/01_mission_overview.gif" alt="Mission Overview" class="h-full w-full object-contain rounded-lg" />
+    <RestartGif src="/pitch/01_mission_overview.gif" alt="Mission Overview" />
   </div>
 </div>
 
@@ -106,7 +106,7 @@ title: Natural-Language Scenario Filter Assistant
   </div>
 
   <div class="gif-stage rounded-xl p-2 flex-1 min-h-0 flex items-center justify-center overflow-hidden">
-    <img src="/pitch/02_scenario_filters.gif" alt="Scenario Filter Assistant" class="h-full w-full object-contain rounded-lg" />
+    <RestartGif src="/pitch/02_scenario_filters.gif" alt="Scenario Filter Assistant" />
   </div>
 </div>
 
@@ -128,7 +128,7 @@ title: Atmospheric Regime & Parameter Explorer
   </div>
 
   <div class="gif-stage rounded-xl p-2 flex-1 min-h-0 flex items-center justify-center overflow-hidden">
-    <img src="/pitch/03_regime_analytics.gif" alt="Atmospheric Regime Explorer" class="h-full w-full object-contain rounded-lg" />
+    <RestartGif src="/pitch/03_regime_analytics.gif" alt="Atmospheric Regime Explorer" />
   </div>
 </div>
 
@@ -150,7 +150,7 @@ title: Multi-Run Flame Spread Comparison
   </div>
 
   <div class="gif-stage rounded-xl p-2 flex-1 min-h-0 flex items-center justify-center overflow-hidden">
-    <img src="/pitch/04_cross_run_comparison.gif" alt="Cross-Run Comparison" class="h-full w-full object-contain rounded-lg" />
+    <RestartGif src="/pitch/04_cross_run_comparison.gif" alt="Cross-Run Comparison" />
   </div>
 </div>
 

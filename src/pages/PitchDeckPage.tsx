@@ -160,19 +160,75 @@ const PITCH_SLIDES: PitchSlide[] = [
   },
 ];
 
+let nextGifPlayNonce = 0;
+
 export function PitchDeckPage() {
   const [activeIndex, setActiveIndex] = useState(0);
   const [isFullscreen, setIsFullscreen] = useState(false);
+  const [gifPlayNonce, setGifPlayNonce] = useState(() => (nextGifPlayNonce += 1));
+  const [activeGifSrc, setActiveGifSrc] = useState<string | null>(null);
   const deckRef = useRef<HTMLDivElement | null>(null);
+  const gifBlobCacheRef = useRef<Record<string, Blob>>({});
+  const activeObjectUrlRef = useRef<string | null>(null);
 
   const slide = PITCH_SLIDES[activeIndex];
   const slideCount = PITCH_SLIDES.length;
 
+  const activateSlideMedia = useCallback((nextIdx: number) => {
+    if (activeObjectUrlRef.current) {
+      URL.revokeObjectURL(activeObjectUrlRef.current);
+      activeObjectUrlRef.current = null;
+    }
+    const targetSlide = PITCH_SLIDES[nextIdx];
+    if (targetSlide?.kind !== "gif" || !targetSlide.clipId) {
+      setActiveGifSrc(null);
+      return;
+    }
+
+    const clipId = targetSlide.clipId;
+    const nonce = (nextGifPlayNonce += 1);
+    setGifPlayNonce(nonce);
+
+    const cachedBlob = gifBlobCacheRef.current[clipId];
+    if (cachedBlob && typeof URL.createObjectURL === "function") {
+      const objectUrl = URL.createObjectURL(cachedBlob);
+      activeObjectUrlRef.current = objectUrl;
+      setActiveGifSrc(objectUrl);
+      return;
+    }
+
+    setActiveGifSrc(`/pitch/${clipId}.gif?play=${nonce}`);
+
+    const isJsdom =
+      typeof navigator !== "undefined" && /jsdom/i.test(navigator.userAgent);
+    if (!isJsdom && typeof fetch === "function") {
+      void fetch(`/pitch/${clipId}.gif`)
+        .then((res) => (res.ok ? res.blob() : null))
+        .then((blob) => {
+          if (blob) {
+            gifBlobCacheRef.current[clipId] = blob;
+          }
+        })
+        .catch(() => undefined);
+    }
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (activeObjectUrlRef.current) {
+        URL.revokeObjectURL(activeObjectUrlRef.current);
+        activeObjectUrlRef.current = null;
+      }
+    };
+  }, []);
+
   const goToSlide = useCallback(
     (idx: number) => {
-      setActiveIndex(((idx % slideCount) + slideCount) % slideCount);
+      const normalized = ((idx % slideCount) + slideCount) % slideCount;
+      setActiveIndex(normalized);
+      activateSlideMedia(normalized);
     },
-    [slideCount],
+    [activateSlideMedia, slideCount],
   );
 
   const toggleFullscreen = useCallback(async () => {
@@ -340,8 +396,8 @@ export function PitchDeckPage() {
         {slide.kind === "gif" && slide.clipId && (
           <div className="w-full overflow-hidden rounded-xl bg-slate-950/90 border border-cyan-400/20 flex items-center justify-center">
             <img
-              key={slide.clipId}
-              src={`/pitch/${slide.clipId}.gif`}
+              key={`${slide.clipId}-${gifPlayNonce}`}
+              src={activeGifSrc ?? `/pitch/${slide.clipId}.gif?play=${gifPlayNonce}`}
               alt={slide.headline}
               className={cn(
                 "w-full object-contain block",
@@ -357,75 +413,63 @@ export function PitchDeckPage() {
           <div
             data-testid="pitch-intro-stage"
             className={cn(
-              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-5 sm:p-6 flex flex-col justify-between gap-4",
+              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-6 sm:p-8 flex flex-col justify-between gap-5",
               stageHeightClass,
             )}
           >
             {/* Main thesis */}
-            <div className="space-y-3 max-w-6xl">
-              <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+            <div className="space-y-4 w-full">
+              <span className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs sm:text-sm font-mono uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
                 NASA Physical Sciences Informatics · Single Entry Point
               </span>
               <div
                 data-testid="pitch-challenge-banner"
-                className="rounded-xl px-4 py-2.5 bg-orange-500/15 border border-orange-400/50"
+                className="rounded-xl px-5 py-4 bg-orange-500/15 border border-orange-400/50"
               >
-                <p className="text-lg sm:text-[22px] font-bold tracking-tight text-white leading-snug">
+                <p className="text-xl sm:text-[26px] font-extrabold tracking-tight text-white leading-snug">
                   <span className="text-orange-300">Challenge:</span>{" "}
                   Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data
                 </p>
               </div>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+              <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-[1.12]">
                 Stop Digging Through Terabytes of Raw Data &amp; Hundreds of Papers
               </h2>
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-5xl">
-                PSI-Lens condenses, groups, and visualizes NASA microgravity combustion experiments in one interactive dashboard - combining natural-language search, live physical filtering, and direct links back to verified primary sources.
-              </p>
             </div>
 
-            {/* Who it is built for */}
+            {/* Who it is built for — compact cards */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="rounded-xl bg-slate-900/75 border border-cyan-400/25 p-4 space-y-2">
-                <div className="inline-flex items-center gap-2 text-cyan-300 text-base font-semibold">
-                  <GraduationCap className="w-4 h-4 shrink-0" />
-                  Students
+              <div className="rounded-xl bg-slate-900/75 border border-cyan-400/25 px-5 py-4 flex items-center">
+                <div className="inline-flex items-center gap-2.5 text-cyan-300 text-base sm:text-[19px] font-semibold">
+                  <GraduationCap className="w-5 h-5 shrink-0" />
+                  <span>Students</span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Intuitively explore how flames behave without gravity - no need to parse raw CSV/XLSX archives first.
-                </p>
               </div>
 
-              <div className="rounded-xl bg-slate-900/75 border border-orange-400/25 p-4 space-y-2">
-                <div className="inline-flex items-center gap-2 text-orange-300 text-base font-semibold">
-                  <Wrench className="w-4 h-4 shrink-0" />
-                  Engineers
+              <div className="rounded-xl bg-slate-900/75 border border-orange-400/25 px-5 py-4 flex items-center">
+                <div className="inline-flex items-center gap-2.5 text-orange-300 text-base sm:text-[19px] font-semibold">
+                  <Wrench className="w-5 h-5 shrink-0" />
+                  <span>Engineers</span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Filter cabin oxygen, pressure, and ignition regimes side by side, and inspect high-rate SAFFIRE-III spacecraft telemetry.
-                </p>
               </div>
 
-              <div className="rounded-xl bg-slate-900/75 border border-emerald-400/25 p-4 space-y-2">
-                <div className="inline-flex items-center gap-2 text-emerald-300 text-base font-semibold">
-                  <BookOpen className="w-4 h-4 shrink-0" />
-                  Professors &amp; Researchers
+              <div className="rounded-xl bg-slate-900/75 border border-emerald-400/25 px-5 py-4 flex items-center">
+                <div className="inline-flex items-center gap-2.5 text-emerald-300 text-base sm:text-[19px] font-semibold">
+                  <BookOpen className="w-5 h-5 shrink-0" />
+                  <span>Professors &amp; Researchers</span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Group related NASA investigations instantly, inspect calibrated curves, and jump straight to original NASA PSI publications.
-                </p>
               </div>
             </div>
 
-            {/* Creators footer */}
-            <div className="pt-3 border-t border-white/10 space-y-2">
-              <div className="text-xs sm:text-sm font-mono font-semibold uppercase tracking-wider text-orange-300">
+            {/* Creators footer — prominent tiles */}
+            <div className="flex-1 flex flex-col justify-center pt-4 border-t border-white/10 space-y-3">
+              <div className="text-base sm:text-lg font-mono font-bold uppercase tracking-wider text-orange-300">
                 Created By
               </div>
-              <div className="flex flex-wrap gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3.5">
                 {TEAM_CREATORS.map((author) => (
                   <span
                     key={author}
-                    className="inline-flex items-center rounded-lg px-3.5 py-1.5 text-sm sm:text-base font-semibold bg-slate-900/90 border border-orange-400/30 text-white"
+                    className="inline-flex items-center justify-center text-center rounded-2xl px-4 py-6 sm:py-7 text-lg sm:text-xl font-extrabold tracking-tight bg-slate-900/95 border border-orange-400/45 text-white shadow-[0_0_20px_rgba(251,146,60,0.12)]"
                   >
                     {author}
                   </span>
@@ -439,76 +483,67 @@ export function PitchDeckPage() {
           <div
             data-testid="pitch-sources-stage"
             className={cn(
-              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-4 sm:p-5 flex flex-col justify-between gap-4",
+              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-6 sm:p-7 flex flex-col justify-between gap-6",
               stageHeightClass,
             )}
           >
             {/* Unified workflow cards */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-              <div className="rounded-xl bg-slate-900/80 border border-cyan-400/25 p-3.5 space-y-1.5">
-                <div className="flex items-center gap-2 text-cyan-300 text-sm font-semibold">
-                  <Database className="w-4 h-4 shrink-0" />
-                  Condenses &amp; Groups
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+              <div className="rounded-2xl bg-slate-900/85 border border-cyan-400/25 p-5 sm:p-6 flex items-center">
+                <div className="flex items-center gap-3 text-cyan-300 text-lg sm:text-2xl font-bold">
+                  <Database className="w-6 h-6 shrink-0" />
+                  <span>Condenses &amp; Groups</span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  358 curated runs across 6 NASA missions - pre-normalized from raw CSV, XLSX, and PDF documentation into Parquet/Polars.
-                </p>
               </div>
 
-              <div className="rounded-xl bg-slate-900/80 border border-orange-400/25 p-3.5 space-y-1.5">
-                <div className="flex items-center gap-2 text-orange-300 text-sm font-semibold">
-                  <Sparkles className="w-4 h-4 shrink-0" />
-                  Natural Language + Filters
+              <div className="rounded-2xl bg-slate-900/85 border border-orange-400/25 p-5 sm:p-6 flex items-center">
+                <div className="flex items-center gap-3 text-orange-300 text-lg sm:text-2xl font-bold">
+                  <Sparkles className="w-6 h-6 shrink-0" />
+                  <span>Natural Language + Filters</span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  Plain English to validated bounds - instant O₂%, absolute pressure, fuel, and investigation filtering in one control surface.
-                </p>
               </div>
 
-              <div className="rounded-xl bg-slate-900/80 border border-emerald-400/25 p-3.5 space-y-1.5">
-                <div className="flex items-center gap-2 text-emerald-300 text-sm font-semibold">
-                  <Layers className="w-4 h-4 shrink-0" />
-                  Visualizes &amp; Routes
+              <div className="rounded-2xl bg-slate-900/85 border border-emerald-400/25 p-5 sm:p-6 flex items-center">
+                <div className="flex items-center gap-3 text-emerald-300 text-lg sm:text-2xl font-bold">
+                  <Layers className="w-6 h-6 shrink-0" />
+                  <span>Visualizes &amp; Routes</span>
                 </div>
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  Live ECharts + primary NASA sources - calibrated multi-unit traces, null-safe curves, and direct links to official PSI records.
-                </p>
               </div>
             </div>
 
             {/* Expanded NASA Data Sources breakdown */}
-            <div className="space-y-2.5 pt-2 border-t border-white/10">
+            <div className="flex-1 flex flex-col justify-between space-y-4 pt-4 border-t border-white/10">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <div className="text-xs sm:text-sm font-mono font-semibold uppercase tracking-wider text-cyan-300">
+                <div className="text-sm sm:text-base font-mono font-bold uppercase tracking-wider text-cyan-300">
                   NASA Data Sources (PSI Repository · GRC · NTRS)
                 </div>
-                <span className="text-xs text-slate-400">
+                <span className="text-xs sm:text-sm text-slate-300">
                   Original units &amp; sampling rates preserved - click any investigation to open NASA PSI
                 </span>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 flex-1">
                 {NASA_SOURCES.map((src) => (
                   <a
                     key={src.accession}
                     href={src.url}
                     target="_blank"
                     rel="noreferrer"
-                    className="group rounded-xl bg-slate-900/90 border border-cyan-400/25 hover:border-cyan-400/70 p-3.5 flex flex-col justify-between gap-2 transition-colors"
+                    className="group rounded-2xl bg-slate-900/90 border border-cyan-400/25 hover:border-cyan-400/70 p-4 sm:p-5 flex flex-col justify-between gap-3 transition-colors"
                   >
-                    <div className="flex items-center justify-between gap-2">
-                      <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-white group-hover:text-cyan-200">
-                        <span className="font-mono text-cyan-300">
+                    <div className="flex flex-wrap items-center justify-between gap-x-2 gap-y-1">
+                      <div className="inline-flex items-center gap-1.5 text-base font-bold text-white group-hover:text-cyan-200 whitespace-nowrap">
+                        <span className="font-mono text-cyan-300 whitespace-nowrap shrink-0">
                           {src.accession}
                         </span>
-                        <span className="text-slate-400">·</span>
+                        <span className="text-slate-400 shrink-0">·</span>
                         <span>{src.label}</span>
                       </div>
-                      <span className="rounded px-2 py-0.5 text-[11px] font-mono bg-slate-950 text-orange-300 border border-orange-400/25 shrink-0">
+                      <span className="rounded-md px-2 py-0.5 text-xs font-mono font-semibold bg-slate-950 text-orange-300 border border-orange-400/25 whitespace-nowrap shrink-0">
                         {src.platform}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-300 leading-relaxed">
+                    <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
                       {src.summary}
                     </p>
                   </a>

@@ -775,6 +775,12 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
     expect(screen.getByTestId("pitch-challenge-banner")).toHaveTextContent(
       /Challenge:\s*Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data/i,
     );
+    expect(
+      screen.queryByText(/Intuitively explore how flames behave without gravity/i),
+    ).toBeNull();
+    expect(
+      screen.queryByText(/PSI-Lens condenses, groups, and visualizes NASA microgravity/i),
+    ).toBeNull();
     expect(screen.queryByTestId("pitch-sources-stage")).toBeNull();
 
     // Slide 2: Expanded NASA Data & Workflow breakdown
@@ -788,7 +794,11 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
     expect(screen.getByText(/Condenses & Groups/i)).toBeInTheDocument();
     expect(screen.getByText(/Natural Language \+ Filters/i)).toBeInTheDocument();
     expect(screen.getByText(/Visualizes & Routes/i)).toBeInTheDocument();
+    expect(
+      screen.queryByText(/358 curated runs across 6 NASA missions/i),
+    ).toBeNull();
     expect(screen.getByText("PSI-159")).toBeInTheDocument();
+    expect(screen.getByText("PSI-10")).toHaveClass("whitespace-nowrap");
     expect(screen.getByText("PSI-100")).toBeInTheDocument();
 
     // Slide 3: Mission Overview GIF
@@ -798,9 +808,9 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
         name: /Microgravity Combustion & Mission Overview/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("img")).toHaveAttribute(
-      "src",
-      "/pitch/01_mission_overview.gif",
+    const firstSlide3Src = screen.getByRole("img").getAttribute("src") ?? "";
+    expect(firstSlide3Src).toMatch(
+      /^\/pitch\/01_mission_overview\.gif\?play=\d+$/,
     );
 
     // Slide 4: Scenario Filters GIF
@@ -810,9 +820,8 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
         name: /Natural-Language Scenario Filter Assistant/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("img")).toHaveAttribute(
-      "src",
-      "/pitch/02_scenario_filters.gif",
+    expect(screen.getByRole("img").getAttribute("src")).toMatch(
+      /^\/pitch\/02_scenario_filters\.gif\?play=\d+$/,
     );
 
     // Slide 6: Cross-Run Comparison GIF (old slides 6 & 7 removed)
@@ -822,9 +831,16 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
         name: /Multi-Run Flame Spread Comparison/i,
       }),
     ).toBeInTheDocument();
-    expect(screen.getByRole("img")).toHaveAttribute(
-      "src",
-      "/pitch/04_cross_run_comparison.gif",
+    expect(screen.getByRole("img").getAttribute("src")).toMatch(
+      /^\/pitch\/04_cross_run_comparison\.gif\?play=\d+$/,
     );
+
+    // Re-entering Slide 3 issues a fresh playback src so the GIF restarts from frame 0
+    await user.click(screen.getByTestId("pitch-slide-tab-3"));
+    const secondSlide3Src = screen.getByRole("img").getAttribute("src") ?? "";
+    expect(secondSlide3Src).toMatch(
+      /^\/pitch\/01_mission_overview\.gif\?play=\d+$/,
+    );
+    expect(secondSlide3Src).not.toBe(firstSlide3Src);
   });
 });
