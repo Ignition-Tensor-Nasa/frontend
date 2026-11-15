@@ -722,7 +722,7 @@ describe("Special Curated Cases: SAFFIRE-III (PSI-100) bespoke view & AI summary
 });
 
 describe("3-Minute Jury Pitch Deck (/pitch)", () => {
-  it("renders 6 slide tabs, toggles GIF/MP4 media and PL/EN language, and jumps between slides", async () => {
+  it("renders 6 English-only slide tabs and switches full-width GIF slides cleanly", async () => {
     window.history.pushState({}, "", "/pitch");
     const user = userEvent.setup();
     render(<App />);
@@ -732,35 +732,45 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
       expect(screen.getByTestId(`pitch-slide-tab-${i}`)).toBeInTheDocument();
     }
 
-    // Default Slide 1 in PL with GIF mode
-    expect(
-      screen.getByText(/Ogień w kosmosie łamie ziemską intuicję/i),
-    ).toBeInTheDocument();
-    const img1 = screen.getByRole("img");
-    expect(img1).toHaveAttribute("src", "/pitch/01_mission_overview.gif");
+    // Simplified UI: no timer controls, no MP4/GIF switcher, no language toggle
+    expect(screen.queryByRole("button", { name: /Start 3:00/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^MP4$/i })).toBeNull();
+    expect(screen.queryByRole("button", { name: /^PL$/i })).toBeNull();
+    expect(document.querySelector("video")).toBeNull();
 
-    // Navigate to Slide 2 and switch media to MP4
+    // Default Slide 1
+    expect(
+      screen.getByRole("heading", {
+        name: /Microgravity Combustion & Mission Overview/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/pitch/01_mission_overview.gif",
+    );
+
+    // Jump to Slide 2
     await user.click(screen.getByTestId("pitch-slide-tab-2"));
     expect(
-      screen.getByText(/Od zdania po polsku lub angielsku/i),
+      screen.getByRole("heading", {
+        name: /Natural-Language Scenario Filter Assistant/i,
+      }),
     ).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAttribute(
       "src",
       "/pitch/02_scenario_filters.gif",
     );
 
-    await user.click(screen.getByRole("button", { name: /^MP4$/i }));
-    const videoEl = document.querySelector("video");
-    expect(videoEl).not.toBeNull();
-    expect(videoEl).toHaveAttribute("src", "/pitch/02_scenario_filters.mp4");
-
-    // Switch back to GIF, switch language EN, and inspect Slide 6 architecture strip
-    await user.click(screen.getByRole("button", { name: /^GIF$/i }));
-    await user.click(screen.getByRole("button", { name: /^EN$/i }));
+    // Jump to Slide 6
     await user.click(screen.getByTestId("pitch-slide-tab-6"));
     expect(
-      screen.getByText(/SAFFIRE-III spacecraft fire analysis/i),
+      screen.getByRole("heading", {
+        name: /SAFFIRE-III Spacecraft Fire Telemetry & AI Briefing/i,
+      }),
     ).toBeInTheDocument();
-    expect(screen.getByText("Parquet + Polars")).toBeInTheDocument();
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/pitch/06_saffire_mission.gif",
+    );
   });
 });
