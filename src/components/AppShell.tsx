@@ -2,8 +2,10 @@ import React, { useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import {
   AlertTriangle,
+  Compass,
   Database,
   Flame,
+  Presentation,
   RotateCcw,
   ShieldAlert,
   SlidersHorizontal,
@@ -65,6 +67,24 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="flex items-center gap-2 sm:gap-3 flex-wrap justify-end">
+            <Link
+              to={location.pathname === "/pitch" ? "/" : "/pitch"}
+              data-testid="nav-pitch-deck"
+              className="inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-gradient-to-r from-orange-500/20 to-cyan-500/20 border border-orange-400/45 text-orange-100 hover:border-cyan-400/70 hover:text-white transition-all shadow-[0_0_16px_-6px_rgba(251,146,60,0.6)]"
+            >
+              {location.pathname === "/pitch" ? (
+                <>
+                  <Compass className="h-3.5 w-3.5 text-cyan-300 shrink-0" />
+                  <span>Live Explorer</span>
+                </>
+              ) : (
+                <>
+                  <Presentation className="h-3.5 w-3.5 text-orange-300 shrink-0" />
+                  <span>3-Min Pitch</span>
+                </>
+              )}
+            </Link>
+
             <span
               className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/25"
               title="Experimental data viewer only"

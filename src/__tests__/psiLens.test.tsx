@@ -720,3 +720,47 @@ describe("Special Curated Cases: SAFFIRE-III (PSI-100) bespoke view & AI summary
     expect(await screen.findByTestId("special-cases-tile")).toBeInTheDocument();
   }, 30000);
 });
+
+describe("3-Minute Jury Pitch Deck (/pitch)", () => {
+  it("renders 6 slide tabs, toggles GIF/MP4 media and PL/EN language, and jumps between slides", async () => {
+    window.history.pushState({}, "", "/pitch");
+    const user = userEvent.setup();
+    render(<App />);
+
+    expect(await screen.findByTestId("pitch-deck-page")).toBeInTheDocument();
+    for (let i = 1; i <= 6; i += 1) {
+      expect(screen.getByTestId(`pitch-slide-tab-${i}`)).toBeInTheDocument();
+    }
+
+    // Default Slide 1 in PL with GIF mode
+    expect(
+      screen.getByText(/Ogień w kosmosie łamie ziemską intuicję/i),
+    ).toBeInTheDocument();
+    const img1 = screen.getByRole("img");
+    expect(img1).toHaveAttribute("src", "/pitch/01_mission_overview.gif");
+
+    // Navigate to Slide 2 and switch media to MP4
+    await user.click(screen.getByTestId("pitch-slide-tab-2"));
+    expect(
+      screen.getByText(/Od zdania po polsku lub angielsku/i),
+    ).toBeInTheDocument();
+    expect(screen.getByRole("img")).toHaveAttribute(
+      "src",
+      "/pitch/02_scenario_filters.gif",
+    );
+
+    await user.click(screen.getByRole("button", { name: /^MP4$/i }));
+    const videoEl = document.querySelector("video");
+    expect(videoEl).not.toBeNull();
+    expect(videoEl).toHaveAttribute("src", "/pitch/02_scenario_filters.mp4");
+
+    // Switch back to GIF, switch language EN, and inspect Slide 6 architecture strip
+    await user.click(screen.getByRole("button", { name: /^GIF$/i }));
+    await user.click(screen.getByRole("button", { name: /^EN$/i }));
+    await user.click(screen.getByTestId("pitch-slide-tab-6"));
+    expect(
+      screen.getByText(/SAFFIRE-III spacecraft fire analysis/i),
+    ).toBeInTheDocument();
+    expect(screen.getByText("Parquet + Polars")).toBeInTheDocument();
+  });
+});
