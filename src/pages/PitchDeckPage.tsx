@@ -15,6 +15,53 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import { cn } from "../lib/utils";
 
+interface NasaSourceRef {
+  accession: string;
+  label: string;
+  url: string;
+}
+
+const NASA_SOURCES: NasaSourceRef[] = [
+  {
+    accession: "PSI-159",
+    label: "ACME CFI-G",
+    url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-159",
+  },
+  {
+    accession: "PSI-39",
+    label: "CFI (FLEX)",
+    url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-39",
+  },
+  {
+    accession: "PSI-10",
+    label: "ACME Flame Design",
+    url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-10",
+  },
+  {
+    accession: "PSI-100",
+    label: "SAFFIRE-III",
+    url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-100",
+  },
+  {
+    accession: "PSI-22",
+    label: "ACME E-FIELD",
+    url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-22",
+  },
+  {
+    accession: "PSI-101",
+    label: "SAME-R",
+    url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-101",
+  },
+];
+
+const TEAM_CREATORS = [
+  "Bartosz Żelek",
+  "Jakub Więcław",
+  "Jakub Grabowski",
+  "Mateusz Frąckowiak",
+  "Marcel Bieżuński",
+];
+
 interface PitchSlide {
   id: string;
   clipId?: string;
@@ -288,53 +335,53 @@ export function PitchDeckPage() {
           <div
             data-testid="pitch-intro-stage"
             className={cn(
-              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-6 sm:p-8 flex flex-col justify-between gap-6",
+              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-4 sm:p-5 flex flex-col justify-between gap-3.5",
               isFullscreen
                 ? "min-h-[calc(100vh-195px)]"
                 : "min-h-[calc(100vh-300px)]",
             )}
           >
             {/* Main thesis */}
-            <div className="space-y-3 max-w-4xl">
-              <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+            <div className="space-y-1.5 max-w-4xl">
+              <span className="inline-flex items-center gap-2 rounded-full px-3 py-0.5 text-[11px] font-mono uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
                 NASA Physical Sciences Informatics · Single Entry Point
               </span>
-              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
                 Stop Digging Through Terabytes of Raw Data &amp; Hundreds of Papers
               </h2>
-              <p className="text-base text-slate-300 leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
                 PSI-Lens condenses, groups, and visualizes NASA microgravity combustion experiments in one interactive dashboard - combining natural-language search, live physical filtering, and direct links back to verified primary sources.
               </p>
             </div>
 
             {/* Who it is built for */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="rounded-xl bg-slate-900/75 border border-cyan-400/25 p-4 space-y-2">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              <div className="rounded-xl bg-slate-900/75 border border-cyan-400/25 p-3.5 space-y-1.5">
                 <div className="inline-flex items-center gap-2 text-cyan-300 text-sm font-semibold">
                   <GraduationCap className="w-4 h-4 shrink-0" />
                   Students
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-300 leading-relaxed">
                   Intuitively explore how flames behave without gravity - no need to parse raw CSV/XLSX archives first.
                 </p>
               </div>
 
-              <div className="rounded-xl bg-slate-900/75 border border-orange-400/25 p-4 space-y-2">
+              <div className="rounded-xl bg-slate-900/75 border border-orange-400/25 p-3.5 space-y-1.5">
                 <div className="inline-flex items-center gap-2 text-orange-300 text-sm font-semibold">
                   <Wrench className="w-4 h-4 shrink-0" />
                   Engineers
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-300 leading-relaxed">
                   Filter cabin oxygen, pressure, and ignition regimes side by side, and inspect high-rate SAFFIRE-III spacecraft telemetry.
                 </p>
               </div>
 
-              <div className="rounded-xl bg-slate-900/75 border border-emerald-400/25 p-4 space-y-2">
+              <div className="rounded-xl bg-slate-900/75 border border-emerald-400/25 p-3.5 space-y-1.5">
                 <div className="inline-flex items-center gap-2 text-emerald-300 text-sm font-semibold">
                   <BookOpen className="w-4 h-4 shrink-0" />
                   Professors &amp; Researchers
                 </div>
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                <p className="text-xs text-slate-300 leading-relaxed">
                   Group related NASA investigations instantly, inspect calibrated curves, and jump straight to original NASA PSI publications.
                 </p>
               </div>
@@ -342,23 +389,65 @@ export function PitchDeckPage() {
 
             {/* Unified workflow strip */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-white/10">
-              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+              <div className="flex items-center gap-2 text-xs text-slate-200">
                 <Database className="w-4 h-4 text-cyan-400 shrink-0" />
                 <span>
                   <strong className="text-white">Condenses &amp; Groups</strong> - 358 curated runs across 6 NASA missions
                 </span>
               </div>
-              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+              <div className="flex items-center gap-2 text-xs text-slate-200">
                 <Sparkles className="w-4 h-4 text-orange-400 shrink-0" />
                 <span>
                   <strong className="text-white">Natural Language + Filters</strong> - plain English to validated bounds
                 </span>
               </div>
-              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+              <div className="flex items-center gap-2 text-xs text-slate-200">
                 <Layers className="w-4 h-4 text-emerald-400 shrink-0" />
                 <span>
                   <strong className="text-white">Visualizes &amp; Routes</strong> - live ECharts + primary NASA sources
                 </span>
+              </div>
+            </div>
+
+            {/* NASA Sources & Creators footer */}
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-3 border-t border-white/10">
+              <div className="lg:col-span-7 space-y-2">
+                <div className="text-xs sm:text-sm font-mono font-semibold uppercase tracking-wider text-cyan-300">
+                  NASA Data Sources (PSI Repository · GRC · NTRS)
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {NASA_SOURCES.map((src) => (
+                    <a
+                      key={src.accession}
+                      href={src.url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs sm:text-sm font-medium bg-slate-900/90 border border-cyan-400/30 text-slate-100 hover:text-cyan-200 hover:border-cyan-400/70 transition-colors"
+                    >
+                      <span className="font-mono font-semibold text-cyan-300">
+                        {src.accession}
+                      </span>
+                      <span className="text-slate-400">·</span>
+                      <span>{src.label}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
+
+              <div className="lg:col-span-5 space-y-2">
+                <div className="text-xs sm:text-sm font-mono font-semibold uppercase tracking-wider text-orange-300">
+                  Created By
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  {TEAM_CREATORS.map((author) => (
+                    <span
+                      key={author}
+                      className="inline-flex items-center rounded-lg px-3 py-1 text-xs sm:text-sm font-semibold bg-slate-900/90 border border-orange-400/25 text-white"
+                    >
+                      {author}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

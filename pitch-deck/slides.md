@@ -47,6 +47,17 @@ mdc: true
       <div class="text-xs text-slate-400 mt-0.5">Parquet + Polars Streaming &amp; LLM Briefing</div>
     </div>
   </div>
+
+  <div class="pt-3 border-t border-white/10 space-y-1.5 text-sm text-slate-200">
+    <div>
+      <span class="font-mono font-semibold uppercase text-cyan-300 mr-2">NASA Sources:</span>
+      <span class="font-medium">psi.nasa.gov (PSI-159 CFI-G · PSI-39 CFI/FLEX · PSI-10 Flame Design · PSI-100 SAFFIRE-III · PSI-22 E-FIELD · PSI-101 SAME-R) · GRC · NTRS</span>
+    </div>
+    <div>
+      <span class="font-mono font-semibold uppercase text-orange-300 mr-2">Created By:</span>
+      <span class="font-semibold text-white">Bartosz Żelek · Jakub Więcław · Jakub Grabowski · Mateusz Frąckowiak · Marcel Bieżuński</span>
+    </div>
+  </div>
 </div>
 
 <!--

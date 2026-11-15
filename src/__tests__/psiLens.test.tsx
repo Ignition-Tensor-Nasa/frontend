@@ -738,7 +738,7 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
     expect(screen.queryByRole("button", { name: /^PL$/i })).toBeNull();
     expect(document.querySelector("video")).toBeNull();
 
-    // Default Slide 1: Introduction hero for students, engineers, professors
+    // Default Slide 1: Introduction hero for students, engineers, professors, sources & authors
     expect(
       screen.getByRole("heading", { name: /What Is PSI-Lens\?/i }),
     ).toBeInTheDocument();
@@ -746,6 +746,10 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
     expect(screen.getByText(/Students/i)).toBeInTheDocument();
     expect(screen.getByText(/Engineers/i)).toBeInTheDocument();
     expect(screen.getByText(/Professors & Researchers/i)).toBeInTheDocument();
+    expect(screen.getByText("Bartosz Żelek")).toBeInTheDocument();
+    expect(screen.getByText("Marcel Bieżuński")).toBeInTheDocument();
+    expect(screen.getByText("PSI-159")).toBeInTheDocument();
+    expect(screen.getByText("PSI-100")).toBeInTheDocument();
 
     // Jump to Slide 2 (Mission Overview GIF)
     await user.click(screen.getByTestId("pitch-slide-tab-2"));
