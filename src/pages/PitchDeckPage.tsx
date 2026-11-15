@@ -1,9 +1,15 @@
 import {
+  BookOpen,
   ChevronLeft,
   ChevronRight,
+  Database,
   ExternalLink,
+  GraduationCap,
+  Layers,
   Maximize2,
   Minimize2,
+  Sparkles,
+  Wrench,
 } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
@@ -11,7 +17,7 @@ import { cn } from "../lib/utils";
 
 interface PitchSlide {
   id: string;
-  clipId: string;
+  clipId?: string;
   shortTitle: string;
   headline: string;
   description: string;
@@ -20,6 +26,15 @@ interface PitchSlide {
 }
 
 const PITCH_SLIDES: PitchSlide[] = [
+  {
+    id: "introduction",
+    shortTitle: "Introduction",
+    headline: "What Is PSI-Lens?",
+    description:
+      "One unified mission-control dashboard turning terabytes of scattered NASA combustion archives and hundreds of papers into interactive, filterable science.",
+    liveRoute: "/",
+    liveLabel: "Open Explorer",
+  },
   {
     id: "mission-overview",
     clipId: "01_mission_overview",
@@ -90,9 +105,12 @@ export function PitchDeckPage() {
   const slide = PITCH_SLIDES[activeIndex];
   const slideCount = PITCH_SLIDES.length;
 
-  const goToSlide = useCallback((idx: number) => {
-    setActiveIndex(((idx % slideCount) + slideCount) % slideCount);
-  }, [slideCount]);
+  const goToSlide = useCallback(
+    (idx: number) => {
+      setActiveIndex(((idx % slideCount) + slideCount) % slideCount);
+    },
+    [slideCount],
+  );
 
   const toggleFullscreen = useCallback(async () => {
     try {
@@ -134,7 +152,7 @@ export function PitchDeckPage() {
       } else if (event.key === "ArrowLeft") {
         event.preventDefault();
         goToSlide(activeIndex - 1);
-      } else if (event.key >= "1" && event.key <= "6") {
+      } else if (event.key >= "1" && event.key <= String(slideCount)) {
         event.preventDefault();
         goToSlide(Number(event.key) - 1);
       } else if (event.key.toLowerCase() === "f") {
@@ -147,19 +165,19 @@ export function PitchDeckPage() {
     return () => {
       window.removeEventListener("keydown", onKeyDown);
     };
-  }, [activeIndex, goToSlide, toggleFullscreen]);
+  }, [activeIndex, goToSlide, slideCount, toggleFullscreen]);
 
   return (
     <div
       ref={deckRef}
       data-testid="pitch-deck-page"
       className={cn(
-        "space-y-4",
-        isFullscreen && "min-h-screen bg-[#060b14] p-4 sm:p-6 overflow-y-auto",
+        "space-y-3",
+        isFullscreen && "min-h-screen bg-[#060b14] p-4 sm:p-5 overflow-y-auto",
       )}
     >
-      {/* Top control & header bar above the full-width GIF */}
-      <section className="panel-surface rounded-2xl p-4 sm:p-5 space-y-3">
+      {/* Top control & header bar above the stage */}
+      <section className="panel-surface rounded-2xl p-3.5 sm:p-4 space-y-2.5">
         <div className="flex flex-wrap items-center justify-between gap-2">
           {/* Slide selector pills */}
           <nav
@@ -239,7 +257,7 @@ export function PitchDeckPage() {
           </div>
         </div>
 
-        {/* Concise Title + Short Description right above the GIF */}
+        {/* Concise Title + Short Description right above the stage */}
         <div className="pt-1 border-t border-white/10 space-y-1">
           <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-white">
             {slide.headline}
@@ -250,16 +268,101 @@ export function PitchDeckPage() {
         </div>
       </section>
 
-      {/* Full-width animated GIF stage */}
-      <section className="panel-surface-cyan rounded-2xl p-2 sm:p-3">
-        <div className="w-full overflow-hidden rounded-xl bg-slate-950/90 border border-cyan-400/20">
-          <img
-            key={slide.clipId}
-            src={`/pitch/${slide.clipId}.gif`}
-            alt={slide.headline}
-            className="w-full h-auto block"
-          />
-        </div>
+      {/* Stage: Slide 1 Introduction hero OR full-width animated GIF */}
+      <section className="panel-surface-cyan rounded-2xl p-2">
+        {slide.clipId ? (
+          <div className="w-full overflow-hidden rounded-xl bg-slate-950/90 border border-cyan-400/20 flex items-center justify-center">
+            <img
+              key={slide.clipId}
+              src={`/pitch/${slide.clipId}.gif`}
+              alt={slide.headline}
+              className={cn(
+                "w-full object-contain block",
+                isFullscreen
+                  ? "max-h-[calc(100vh-175px)]"
+                  : "max-h-[calc(100vh-280px)]",
+              )}
+            />
+          </div>
+        ) : (
+          <div
+            data-testid="pitch-intro-stage"
+            className={cn(
+              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-6 sm:p-8 flex flex-col justify-between gap-6",
+              isFullscreen
+                ? "min-h-[calc(100vh-195px)]"
+                : "min-h-[calc(100vh-300px)]",
+            )}
+          >
+            {/* Main thesis */}
+            <div className="space-y-3 max-w-4xl">
+              <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+                NASA Physical Sciences Informatics · Single Entry Point
+              </span>
+              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
+                Stop Digging Through Terabytes of Raw Data &amp; Hundreds of Papers
+              </h2>
+              <p className="text-base text-slate-300 leading-relaxed">
+                PSI-Lens condenses, groups, and visualizes NASA microgravity combustion experiments in one interactive dashboard - combining natural-language search, live physical filtering, and direct links back to verified primary sources.
+              </p>
+            </div>
+
+            {/* Who it is built for */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-xl bg-slate-900/75 border border-cyan-400/25 p-4 space-y-2">
+                <div className="inline-flex items-center gap-2 text-cyan-300 text-sm font-semibold">
+                  <GraduationCap className="w-4 h-4 shrink-0" />
+                  Students
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  Intuitively explore how flames behave without gravity - no need to parse raw CSV/XLSX archives first.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-900/75 border border-orange-400/25 p-4 space-y-2">
+                <div className="inline-flex items-center gap-2 text-orange-300 text-sm font-semibold">
+                  <Wrench className="w-4 h-4 shrink-0" />
+                  Engineers
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  Filter cabin oxygen, pressure, and ignition regimes side by side, and inspect high-rate SAFFIRE-III spacecraft telemetry.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-900/75 border border-emerald-400/25 p-4 space-y-2">
+                <div className="inline-flex items-center gap-2 text-emerald-300 text-sm font-semibold">
+                  <BookOpen className="w-4 h-4 shrink-0" />
+                  Professors &amp; Researchers
+                </div>
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                  Group related NASA investigations instantly, inspect calibrated curves, and jump straight to original NASA PSI publications.
+                </p>
+              </div>
+            </div>
+
+            {/* Unified workflow strip */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-white/10">
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+                <Database className="w-4 h-4 text-cyan-400 shrink-0" />
+                <span>
+                  <strong className="text-white">Condenses &amp; Groups</strong> - 358 curated runs across 6 NASA missions
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+                <Sparkles className="w-4 h-4 text-orange-400 shrink-0" />
+                <span>
+                  <strong className="text-white">Natural Language + Filters</strong> - plain English to validated bounds
+                </span>
+              </div>
+              <div className="flex items-center gap-2.5 text-xs sm:text-sm text-slate-200">
+                <Layers className="w-4 h-4 text-emerald-400 shrink-0" />
+                <span>
+                  <strong className="text-white">Visualizes &amp; Routes</strong> - live ECharts + primary NASA sources
+                </span>
+              </div>
+            </div>
+          </div>
+        )}
       </section>
     </div>
   );

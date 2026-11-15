@@ -1,0 +1,14 @@
+{
+  "name": "psi-lens-pitch-deck",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "slidev slides.md --open=false --port 3030",
+    "build": "slidev build slides.md --out dist",
+    "export": "slidev export slides.md --output psi-lens-pitch.pdf"
+  },
+  "dependencies": {
+    "@slidev/cli": "^51.0.0",
+    "@slidev/theme-default": "latest"
+  }
+}

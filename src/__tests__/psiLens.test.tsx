@@ -201,11 +201,11 @@ describe("End-to-end Explorer -> Case -> Back journey", () => {
     const user = userEvent.setup();
     render(<App />);
 
-    // Demo badge and disclaimer are visible
+    // Demo badge is visible and safety disclaimer is removed
     expect(screen.getByText(/DEMO \/ FIXTURE MODE:/i)).toBeInTheDocument();
     expect(
-      screen.getAllByText(/Research demo, not a safety assessment/i).length,
-    ).toBeGreaterThan(0);
+      screen.queryByText(/Research demo, not a safety assessment/i),
+    ).toBeNull();
 
     // Full initial catalogue loaded
     expect(
@@ -722,13 +722,13 @@ describe("Special Curated Cases: SAFFIRE-III (PSI-100) bespoke view & AI summary
 });
 
 describe("3-Minute Jury Pitch Deck (/pitch)", () => {
-  it("renders 6 English-only slide tabs and switches full-width GIF slides cleanly", async () => {
+  it("renders 7 English-only slide tabs starting with Introduction hero and switching GIF slides cleanly", async () => {
     window.history.pushState({}, "", "/pitch");
     const user = userEvent.setup();
     render(<App />);
 
     expect(await screen.findByTestId("pitch-deck-page")).toBeInTheDocument();
-    for (let i = 1; i <= 6; i += 1) {
+    for (let i = 1; i <= 7; i += 1) {
       expect(screen.getByTestId(`pitch-slide-tab-${i}`)).toBeInTheDocument();
     }
 
@@ -738,7 +738,17 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
     expect(screen.queryByRole("button", { name: /^PL$/i })).toBeNull();
     expect(document.querySelector("video")).toBeNull();
 
-    // Default Slide 1
+    // Default Slide 1: Introduction hero for students, engineers, professors
+    expect(
+      screen.getByRole("heading", { name: /What Is PSI-Lens\?/i }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("pitch-intro-stage")).toBeInTheDocument();
+    expect(screen.getByText(/Students/i)).toBeInTheDocument();
+    expect(screen.getByText(/Engineers/i)).toBeInTheDocument();
+    expect(screen.getByText(/Professors & Researchers/i)).toBeInTheDocument();
+
+    // Jump to Slide 2 (Mission Overview GIF)
+    await user.click(screen.getByTestId("pitch-slide-tab-2"));
     expect(
       screen.getByRole("heading", {
         name: /Microgravity Combustion & Mission Overview/i,
@@ -749,8 +759,8 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
       "/pitch/01_mission_overview.gif",
     );
 
-    // Jump to Slide 2
-    await user.click(screen.getByTestId("pitch-slide-tab-2"));
+    // Jump to Slide 3 (Scenario Filters GIF)
+    await user.click(screen.getByTestId("pitch-slide-tab-3"));
     expect(
       screen.getByRole("heading", {
         name: /Natural-Language Scenario Filter Assistant/i,
@@ -761,8 +771,8 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
       "/pitch/02_scenario_filters.gif",
     );
 
-    // Jump to Slide 6
-    await user.click(screen.getByTestId("pitch-slide-tab-6"));
+    // Jump to Slide 7 (SAFFIRE-III GIF)
+    await user.click(screen.getByTestId("pitch-slide-tab-7"));
     expect(
       screen.getByRole("heading", {
         name: /SAFFIRE-III Spacecraft Fire Telemetry & AI Briefing/i,

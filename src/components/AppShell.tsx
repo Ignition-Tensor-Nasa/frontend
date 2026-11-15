@@ -7,7 +7,6 @@ import {
   Flame,
   Presentation,
   RotateCcw,
-  ShieldAlert,
   SlidersHorizontal,
 } from "lucide-react";
 import { useExplorer } from "../context/ExplorerContext";
@@ -84,14 +83,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                 </>
               )}
             </Link>
-
-            <span
-              className="hidden lg:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[11px] font-medium bg-amber-500/10 text-amber-300 border border-amber-500/25"
-              title="Experimental data viewer only"
-            >
-              <ShieldAlert className="h-3.5 w-3.5 text-amber-400 shrink-0" />
-              Research demo, not a safety assessment
-            </span>
 
             {/* Visible Data Source Mode Switcher (F01 / F09) */}
             <div
@@ -235,9 +226,6 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   Displaying curated NASA PSI sample fixtures &amp; rehearsed AI filter mappings (no live backend call).
                 </span>
               </div>
-              <span className="lg:hidden text-amber-300/90 font-medium">
-                Research demo, not a safety assessment
-              </span>
             </div>
           </div>
         )}
