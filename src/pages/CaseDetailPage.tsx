@@ -832,7 +832,7 @@ function CaseDetailView({ decodedCaseId }: { decodedCaseId: string }) {
             <div className="flex items-center gap-2">
               <Globe className="h-4 w-4 text-emerald-400" />
               <h2 className="text-sm font-semibold text-white">
-                Earth Applications &amp; NASA PSI Investigation Context (F22)
+                Earth Applications &amp; NASA PSI Investigation Context
               </h2>
             </div>
             <div className="flex flex-wrap items-center gap-1.5 text-[11px] font-mono-telemetry">

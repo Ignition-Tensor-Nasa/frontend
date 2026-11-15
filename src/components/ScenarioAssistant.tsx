@@ -27,9 +27,6 @@ export function ScenarioAssistant() {
             <h1 className="text-sm sm:text-base font-semibold text-white tracking-tight">
               Scenario Filter Assistant
             </h1>
-            <p className="text-xs text-slate-400">
-              Translate a natural-language combustion scenario (PL/EN) directly into validated search filters.
-            </p>
           </div>
         </div>
 

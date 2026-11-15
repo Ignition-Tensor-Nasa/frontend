@@ -119,15 +119,18 @@ function SynchronizedTierChart({
           textStyle: { color: "#e2e8f0", fontSize: 11 },
         },
         legend: {
-          top: 2,
+          type: "scroll",
+          top: 4,
+          left: 12,
           right: 12,
           textStyle: { color: "#cbd5e1", fontSize: 11 },
+          pageTextStyle: { color: "#94a3b8" },
         },
         grid: {
-          top: 30,
+          top: 48,
           left: 64,
-          right: 22,
-          bottom: 36,
+          right: 28,
+          bottom: 40,
         },
         xAxis: {
           type: "value",
@@ -140,6 +143,7 @@ function SynchronizedTierChart({
         yAxis: {
           type: "value",
           name: spec.yAxisLabel,
+          nameGap: 10,
           nameTextStyle: { color: "#94a3b8", fontSize: 10 },
           axisLine: { lineStyle: { color: "#334155" } },
           axisLabel: { color: "#94a3b8", fontSize: 10 },
@@ -537,8 +541,8 @@ export function CoolFlameLifecycleDeck({
             )}
             <h2 className="text-base font-semibold text-white tracking-tight">
               {isFlex
-                ? "Cool-Flame Droplet Lifecycle Deck (F13)"
-                : "Synchronized Multi-Dataset Deck (F13)"}
+                ? "Cool-Flame Droplet Lifecycle Deck"
+                : "Synchronized Multi-Dataset Deck"}
             </h2>
             <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-telemetry bg-orange-500/15 border border-orange-400/35 text-orange-200">
               {caseDetail.datasets.length} linked datasets
@@ -590,7 +594,7 @@ export function CoolFlameLifecycleDeck({
             <span>
               {expanded
                 ? "Collapse Lifecycle Deck"
-                : "Launch Synchronized Multi-Dataset View (F13)"}
+                : "Launch Synchronized Multi-Dataset View"}
             </span>
             {expanded ? (
               <ChevronUp className="h-3.5 w-3.5" />

@@ -446,8 +446,12 @@ export function ExplorerVisualDeck() {
           backgroundColor: "transparent",
           animation: false,
           legend: {
-            top: 4,
+            type: "scroll",
+            top: 6,
+            left: 12,
+            right: 12,
             textStyle: { color: "#cbd5e1", fontSize: 11 },
+            pageTextStyle: { color: "#94a3b8" },
           },
           tooltip: {
             trigger: "item",
@@ -470,11 +474,11 @@ export function ExplorerVisualDeck() {
                 p.data.zSt !== null && p.data.zSt !== undefined
                   ? `<br/>Z_st: <b>${p.data.zSt.toFixed(4)}</b>`
                   : ""
-              }<br/><span style="color:#22d3ee">Click point to trace B11 neighbors</span>`;
+              }<br/><span style="color:#22d3ee">Click point to trace nearest neighbors</span>`;
             },
           },
           grid: {
-            top: 44,
+            top: 56,
             right: 28,
             bottom: 48,
             left: 68,
@@ -494,6 +498,7 @@ export function ExplorerVisualDeck() {
           yAxis: {
             type: "value",
             name: "Pressure [kPa]",
+            nameGap: 10,
             min: 20,
             max: 540,
             nameTextStyle: { color: "#94a3b8", fontSize: 11 },
@@ -515,7 +520,7 @@ export function ExplorerVisualDeck() {
             })),
             // Neighbor vector lines + ISS/Exploration illustrative reference stars
             {
-              name: "Neighbor Links (B11)",
+              name: "Neighbor Links",
               type: "lines",
               coordinateSystem: "cartesian2d",
               data: neighborLines,
@@ -609,8 +614,12 @@ export function ExplorerVisualDeck() {
         backgroundColor: "transparent",
         animationDuration: 250,
         legend: {
-          top: 4,
+          type: "scroll",
+          top: 6,
+          left: 12,
+          right: 12,
           textStyle: { color: "#cbd5e1", fontSize: 11 },
+          pageTextStyle: { color: "#94a3b8" },
         },
         tooltip: {
           trigger: "item",
@@ -636,7 +645,7 @@ export function ExplorerVisualDeck() {
           },
         },
         grid: {
-          top: 44,
+          top: 56,
           right: 28,
           bottom: 48,
           left: 68,
@@ -654,6 +663,7 @@ export function ExplorerVisualDeck() {
         yAxis: {
           type: "value",
           name: "O₂ [%]",
+          nameGap: 10,
           min: 14,
           max: 42,
           nameTextStyle: { color: "#94a3b8", fontSize: 11 },
@@ -769,7 +779,7 @@ export function ExplorerVisualDeck() {
             )}
           >
             <Grid3X3 className="h-3.5 w-3.5" />
-            <span>Atmosphere Heatmap (F10)</span>
+            <span>Atmosphere Heatmap</span>
           </button>
 
           <button
@@ -785,7 +795,7 @@ export function ExplorerVisualDeck() {
             )}
           >
             <Orbit className="h-3.5 w-3.5" />
-            <span>Condition Galaxy &amp; Z_st (F19/F15)</span>
+            <span>Condition Galaxy &amp; Z_st</span>
           </button>
 
           <button
@@ -801,18 +811,18 @@ export function ExplorerVisualDeck() {
             )}
           >
             <ShieldAlert className="h-3.5 w-3.5" />
-            <span>Safety Context Matrix (F18)</span>
+            <span>Safety Context Matrix</span>
           </button>
         </div>
       </div>
 
-      {/* Tab 1: F10 Heatmap + F20 Habitat Reference Strip */}
+      {/* Tab 1: Atmosphere Heatmap + Habitat Reference Strip */}
       {activeTab === "heatmap" && (
         <div className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex flex-wrap items-center gap-1.5">
               <span className="text-[11px] font-mono-telemetry uppercase tracking-wider text-slate-400 mr-1">
-                Habitat Presets (F20):
+                Habitat Presets:
               </span>
               {HABITAT_PRESETS.map((preset) => (
                 <button
@@ -956,7 +966,7 @@ export function ExplorerVisualDeck() {
                     : "text-slate-400 hover:text-slate-200",
                 )}
               >
-                Condition Galaxy (O₂ × Pressure + B11 Neighbors)
+                Condition Galaxy (O₂ × Pressure + Neighbors)
               </button>
               <button
                 type="button"
@@ -968,7 +978,7 @@ export function ExplorerVisualDeck() {
                     : "text-slate-400 hover:text-slate-200",
                 )}
               >
-                Stoichiometric Regime Map (Z_st × O₂ · F15)
+                Stoichiometric Regime Map (Z_st × O₂)
               </button>
             </div>
 
@@ -1287,7 +1297,7 @@ export function ExplorerVisualDeck() {
         <div className="flex flex-wrap items-center gap-1.5">
           <span className="text-[11px] font-mono-telemetry uppercase tracking-wider text-orange-300 flex items-center gap-1 mr-1">
             <GitCompare className="h-3.5 w-3.5" />
-            Instant Comparisons (F12):
+            Instant Comparisons:
           </span>
           {CURATED_COMPARE_PAIRS.map((pair) => (
             <button

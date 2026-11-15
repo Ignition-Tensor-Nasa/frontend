@@ -25,7 +25,7 @@ import { validateDatasetData } from "../utils/datasetValidation";
 import type { CaseSummary, Dataset } from "../api/types";
 import App from "../App";
 
-describe("Filter sanitization, validation, and search semantics (F02/F03)", () => {
+describe("Filter sanitization, validation, and search semantics", () => {
   it("omits empty category arrays and empty ranges", () => {
     expect(
       sanitizeFilters({
@@ -107,7 +107,7 @@ describe("Filter sanitization, validation, and search semantics (F02/F03)", () =
   });
 });
 
-describe("Assistant prompt interpretation (F04)", () => {
+describe("Assistant prompt interpretation", () => {
   it("maps Polish and English rehearsed prompts to complete filter states labelled demo", () => {
     const pl = interpretFixtureFilters(
       "Pokaż testy z butanem powyżej 200 kPa i ponad 39% tlenu!",
@@ -132,7 +132,7 @@ describe("Assistant prompt interpretation (F04)", () => {
   });
 });
 
-describe("DatasetData JSON validation (F06/F07)", () => {
+describe("DatasetData JSON validation", () => {
   const descriptor: Dataset = {
     dataset_id: "DS-1",
     label: "Test DS",
@@ -196,7 +196,7 @@ describe("DatasetData JSON validation (F06/F07)", () => {
   });
 });
 
-describe("End-to-end Explorer -> Case -> Back journey (F00–F09)", () => {
+describe("End-to-end Explorer -> Case -> Back journey", () => {
   it("runs scenario filter assistant, preserves state across case navigation, and handles reset", async () => {
     const user = userEvent.setup();
     render(<App />);
@@ -501,7 +501,7 @@ describe("Backend main API compatibility (/datasets/{id}/data, /csv export & B11
   });
 });
 
-describe("Optional Hackathon Modules (F10, F11, F12, F13, F15, F18, F19, F20)", () => {
+describe("Optional Analytics Modules (Heatmap, Parallel Coords, Multi-Case Compare, Lifecycle Deck, Safety Matrix, Galaxy)", () => {
   it("renders Atmosphere Heatmap, Galaxy & Z_st Regimes, Safety Context Matrix, and Multi-Case Comparison", async () => {
     window.history.pushState({}, "", "/");
     const user = userEvent.setup();
@@ -603,14 +603,14 @@ describe("Optional Hackathon Modules (F10, F11, F12, F13, F15, F18, F19, F20)", 
     );
   }, 15000);
 
-  it("renders Cool-Flame Droplet Lifecycle Deck (F13) and Parallel Coordinates (F11) on FLEX-1249", async () => {
+  it("renders Cool-Flame Droplet Lifecycle Deck and Parallel Coordinates on FLEX-1249", async () => {
     window.history.pushState({}, "", "/cases/FLEX-1249");
     const user = userEvent.setup();
     render(<App />);
 
-    // Cool-Flame Droplet Lifecycle Deck (F13) expands automatically for CFI (FLEX)
+    // Cool-Flame Droplet Lifecycle Deck expands automatically for CFI (FLEX)
     expect(
-      await screen.findByText(/Cool-Flame Droplet Lifecycle Deck \(F13\)/i, {}, { timeout: 3000 }),
+      await screen.findByText(/Cool-Flame Droplet Lifecycle Deck/i, {}, { timeout: 3000 }),
     ).toBeInTheDocument();
     expect(
       await screen.findByText(/Tier 1 · Droplet D² & Backend Linear Fit/i, {}, { timeout: 3000 }),
@@ -646,10 +646,12 @@ describe("Special Curated Cases: SAFFIRE-III (PSI-100) bespoke view & AI summary
     const user = userEvent.setup();
     render(<App />);
 
-    // Explorer displays the N=2 Special Cases tile with bespoke warning
+    // Explorer displays the N=2 Mission Overview tile with per-card Cygnus badge
     const tile = await screen.findByTestId("special-cases-tile");
-    expect(tile).toHaveTextContent("2 special cases");
-    expect(tile).toHaveTextContent(/wyłącznie dla tych 2 specjalnych case'ów/i);
+    expect(tile).toHaveTextContent("Mission Overview");
+    expect(tile).toHaveTextContent("2 missions");
+    expect(tile).toHaveTextContent(/Dedicated 4-section telemetry overview/i);
+    expect(tile).toHaveTextContent(/Cygnus OA-7 · 30 Hz \+ 1 Hz/i);
 
     const openSample1 = screen.getByTestId("special-case-open-SAFFIRE-III-S1");
     expect(openSample1).toBeInTheDocument();

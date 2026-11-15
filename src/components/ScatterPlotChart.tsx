@@ -109,7 +109,7 @@ export function ScatterPlotChart({
       animation: points.length <= 5000,
       animationDuration: 260,
       backgroundColor: "transparent",
-      grid: { left: 72, right: 34, top: 32, bottom: 56 },
+      grid: { left: 72, right: 34, top: 42, bottom: 56 },
       tooltip: {
         trigger: "item",
         backgroundColor: "rgba(15, 23, 42, 0.96)",
@@ -142,6 +142,7 @@ export function ScatterPlotChart({
         type: "value",
         scale: true,
         name: formatAxisName(yCol),
+        nameGap: 10,
         nameTextStyle: { color: "#cbd5e1", fontSize: 11 },
         axisLabel: { color: "#94a3b8", fontSize: 11 },
         axisLine: { lineStyle: { color: "#334155" } },

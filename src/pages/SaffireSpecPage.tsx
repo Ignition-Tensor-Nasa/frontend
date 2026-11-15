@@ -57,8 +57,8 @@ function buildStackedPanelsOption({
   const n = panels.length;
   const topPad = 48;
   const bottomPad = 76;
-  const gapPct = 4.2;
-  const usablePct = 86 - (n - 1) * gapPct;
+  const gapPct = 4.8;
+  const usablePct = 81 - (n - 1) * gapPct;
   const panelHeightPct = usablePct / n;
 
   const titles: echarts.TitleComponentOption[] = [];
@@ -68,13 +68,13 @@ function buildStackedPanelsOption({
   const series: echarts.SeriesOption[] = [];
 
   panels.forEach((panel, idx) => {
-    const topPct = 6 + idx * (panelHeightPct + gapPct);
+    const topPct = 8.5 + idx * (panelHeightPct + gapPct);
     const isLast = idx === n - 1;
 
     titles.push({
       text: `${panel.title} (${panel.unit})`,
       left: 72,
-      top: `${(topPct - 2.4).toFixed(2)}%`,
+      top: `${(topPct - 2.6).toFixed(2)}%`,
       textStyle: {
         color: "#e2e8f0",
         fontSize: 12,
@@ -108,8 +108,6 @@ function buildStackedPanelsOption({
     yAxes.push({
       type: "value",
       gridIndex: idx,
-      name: panel.unit,
-      nameTextStyle: { color: "#94a3b8", fontSize: 10 },
       scale: true,
       axisLine: { lineStyle: { color: "#334155" } },
       axisLabel: { color: "#94a3b8", fontSize: 10 },
@@ -457,7 +455,7 @@ function ArrivalSection({ sample }: { sample: SaffireSamplePayload }) {
       {
         backgroundColor: "transparent",
         animation: false,
-        grid: { top: 24, right: 64, bottom: 48, left: 76 },
+        grid: { top: 36, right: 64, bottom: 48, left: 76 },
         tooltip: {
           trigger: "item",
           backgroundColor: "rgba(9, 14, 28, 0.96)",
@@ -493,6 +491,7 @@ function ArrivalSection({ sample }: { sample: SaffireSamplePayload }) {
           data: arrival.thermocouples,
           inverse: true,
           name: "Sample TC",
+          nameGap: 10,
           nameTextStyle: { color: "#94a3b8", fontSize: 11 },
           axisLine: { lineStyle: { color: "#334155" } },
           axisLabel: { color: "#e2e8f0", fontSize: 11, fontWeight: 600 },
@@ -633,7 +632,7 @@ function PlaybackSection({ sample }: { sample: SaffireSamplePayload }) {
       {
         backgroundColor: "transparent",
         animation: false,
-        grid: { top: 24, right: 24, bottom: 48, left: 68 },
+        grid: { top: 36, right: 24, bottom: 48, left: 68 },
         tooltip: {
           trigger: "axis",
           axisPointer: { type: "shadow" },
@@ -662,6 +661,7 @@ function PlaybackSection({ sample }: { sample: SaffireSamplePayload }) {
           min: 0,
           max: playback.y_max_c,
           name: "°C",
+          nameGap: 10,
           nameTextStyle: { color: "#94a3b8", fontSize: 11 },
           axisLine: { lineStyle: { color: "#334155" } },
           axisLabel: { color: "#94a3b8", fontSize: 10 },
@@ -1113,7 +1113,7 @@ export function SaffireSpecPage() {
               NASA PSI-100 · Cygnus OA-7
             </span>
             <span className="px-2.5 py-1 rounded-md bg-slate-900 border border-slate-700 text-slate-200 font-medium">
-              Bespoke `saffire3` View (Exclusive)
+              Mission Overview
             </span>
           </div>
         </div>
@@ -1147,10 +1147,6 @@ export function SaffireSpecPage() {
               </button>
             ))}
           </div>
-        </div>
-
-        <div className="rounded-xl bg-orange-950/25 border border-orange-400/35 px-4 py-2.5 text-xs text-orange-100/95">
-          {payload.bespoke_notice}
         </div>
 
         {/* 6 Headline Fact Tiles */}

@@ -626,11 +626,15 @@ export function MultiCaseComparisonModal() {
           textStyle: { color: "#e2e8f0", fontSize: 12 },
         },
         legend: {
-          top: 4,
+          type: "scroll",
+          top: 6,
+          left: 16,
+          right: 16,
           textStyle: { color: "#cbd5e1", fontSize: 11 },
+          pageTextStyle: { color: "#94a3b8" },
         },
         grid: {
-          top: 44,
+          top: 58,
           left: 72,
           right: rightAxisCount > 0 ? 72 + (rightAxisCount - 1) * 56 : 28,
           bottom: 58,
@@ -654,6 +658,7 @@ export function MultiCaseComparisonModal() {
           position: idx === 0 ? "left" : "right",
           offset: idx > 1 ? (idx - 1) * 56 : 0,
           name: bucket.label,
+          nameGap: 10,
           nameTextStyle: {
             color: axisBuckets.length > 1 ? bucket.color : "#94a3b8",
             fontSize: 11,
@@ -782,7 +787,7 @@ export function MultiCaseComparisonModal() {
                 <div className="flex items-center gap-2">
                   <GitCompare className="h-5 w-5 text-orange-400" />
                   <h2 className="text-lg font-bold text-white tracking-tight">
-                    Cross-Run Telemetry Comparison (F12)
+                    Cross-Run Telemetry Comparison
                   </h2>
                 </div>
                 <p className="text-xs text-slate-400 mt-0.5">

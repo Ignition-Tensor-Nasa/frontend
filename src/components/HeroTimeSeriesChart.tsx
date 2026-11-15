@@ -148,10 +148,10 @@ export function HeroTimeSeriesChart({
     // Build ECharts grids & axes separating incompatible units cleanly
     const grids: echarts.GridComponentOption[] = useTwoPanels
       ? [
-        { left: 68, right: unitGroups.length > 2 ? 72 : 34, top: 36, height: "34%" },
-        { left: 68, right: unitGroups.length > 2 ? 72 : 34, top: "53%", height: "31%" },
+        { left: 68, right: unitGroups.length > 2 ? 72 : 34, top: 56, height: "31%" },
+        { left: 68, right: unitGroups.length > 2 ? 72 : 34, top: "56%", height: "28%" },
       ]
-      : [{ left: 68, right: 34, top: 40, bottom: 78 }];
+      : [{ left: 68, right: 34, top: 58, bottom: 78 }];
 
     const xAxes: echarts.XAXisComponentOption[] = useTwoPanels
       ? [
@@ -206,6 +206,7 @@ export function HeroTimeSeriesChart({
         scale: true,
         position: isRightSecondary ? "right" : "left",
         name: group.displayUnit,
+        nameGap: 10,
         nameTextStyle: {
           color: "#cbd5e1",
           fontSize: 11,
@@ -343,10 +344,11 @@ export function HeroTimeSeriesChart({
       },
       legend: {
         type: "scroll",
-        top: 4,
+        top: 6,
         left: 16,
-        right: 16,
+        right: 84,
         textStyle: { color: "#cbd5e1", fontSize: 11 },
+        pageTextStyle: { color: "#94a3b8" },
         inactiveColor: "#475569",
       },
       grid: grids,

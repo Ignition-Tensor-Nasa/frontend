@@ -58,7 +58,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
                   </span>
                 </div>
                 <p className="text-xs text-slate-400 truncate hidden md:block">
-                  NASA Physical Sciences Informatics Telemetry &amp; Experiment Explorer
+                  PSI Analysis Dashboard
                 </p>
               </div>
             </Link>

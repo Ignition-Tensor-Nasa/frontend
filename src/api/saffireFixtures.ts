@@ -17,7 +17,7 @@ const COLORS = [
 ];
 
 export const FIXTURE_BESPOKE_NOTICE =
-  "Dedykowana analiza SAFFIRE-III (NASA PSI-100): ten 4-sekcyjny układ wykresów (czujniki 30 Hz próbek 1 i 2, kolejność dotarcia płomienia TC7–TC12, animowana oś nagrzewania oraz 1 Hz telemetria statku Cygnus OA-7 + podsumowanie AI) został przygotowany wyłącznie dla tych 2 specjalnych case'ów.";
+  "Dedicated 4-section telemetry overview (30 Hz chamber sensors and 1 Hz Cygnus spacecraft downlink) with AI mission analysis.";
 
 export const FIXTURE_SPECIAL_CASES: SpecialCaseSummary[] = [
   {
@@ -26,7 +26,7 @@ export const FIXTURE_SPECIAL_CASES: SpecialCaseSummary[] = [
     title:
       "Saffire-III Sample 1 · Large Spacecraft Fire (690 s, 30 Hz + 1 Hz Cygnus)",
     subtitle:
-      "Główny pożar w module Cygnus (0.4 × 0.94 m): szczyt 1088 °C na TC11 (247 s po zapłonie), radiometr 169 mW/cm² oraz odpowiedź detektora dymu FIZ2 po 23 s.",
+      "Primary 0.4 × 0.94 m SIBAL burn aboard Cygnus: 1088 °C peak on TC11 (247 s after ignition), 169 mW/cm² radiant flux, and FIZ 2 smoke detector response after 23 s.",
     investigation: "Saffire-III (PSI-100)",
     capsule: "Cygnus OA-7",
     fuel: "Saffire-III Sample 1 (0.4 × 0.94 m)",
@@ -35,7 +35,7 @@ export const FIXTURE_SPECIAL_CASES: SpecialCaseSummary[] = [
     recording_duration_s: 690.0,
     peak_temp_c: 1088.0,
     peak_heat_flux_mw_cm2: 169.0,
-    highlight_badge: "BESPOKE · 1088 °C Peak",
+    highlight_badge: "1088 °C Peak",
   },
   {
     case_id: "SAFFIRE-III-S2",
@@ -43,7 +43,7 @@ export const FIXTURE_SPECIAL_CASES: SpecialCaseSummary[] = [
     title:
       "Saffire-III Sample 2 · Companion 30 Hz Sensor Record & Cygnus Downlink (160 s)",
     subtitle:
-      "Drugi zestaw 30 Hz (160 s): impuls zapalnika 60.0–68.0 s, szczyt w smudze 48.4 °C (TC3), powierzchnia próbki ≤ 20.0 °C oraz wspólna telemetria 1 Hz statku Cygnus OA-7.",
+      "Companion 30 Hz sensor record (160 s): 60.0–68.0 s igniter pulse, 48.4 °C plume peak (TC3), sample surface ≤ 20.0 °C, and shared 1 Hz Cygnus OA-7 telemetry.",
     investigation: "Saffire-III (PSI-100)",
     capsule: "Cygnus OA-7",
     fuel: "Saffire-III Sample 2",
@@ -52,7 +52,7 @@ export const FIXTURE_SPECIAL_CASES: SpecialCaseSummary[] = [
     recording_duration_s: 160.0,
     peak_temp_c: 20.0,
     peak_heat_flux_mw_cm2: -3.7,
-    highlight_badge: "BESPOKE · 160 s Companion",
+    highlight_badge: "160 s Companion",
   },
 ];
 
