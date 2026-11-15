@@ -100,6 +100,7 @@ fi
 PARQUET_DIR="$BACKEND_DIR/data/curated/parquet"
 if [ "$FORCE_PREPARE" = "true" ] \
   || [ ! -f "$BACKEND_DIR/data/curated/catalogue.parquet" ] \
+  || [ ! -f "$BACKEND_DIR/data/curated/saffire3.json" ] \
   || [ ! -d "$PARQUET_DIR" ] \
   || [ -z "$(ls -A "$PARQUET_DIR" 2>/dev/null)" ]; then
   if [ ! -d "$DATA_DIR" ]; then

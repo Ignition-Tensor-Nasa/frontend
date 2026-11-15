@@ -73,6 +73,60 @@ const PSI_INVESTIGATION_METADATA: Record<string, PsiInvestigationMetadata> = {
     objectivesSummary:
       "Examine n-dodecane and n-dodecane/iso-dodecane droplet combustion across 0.25–5 atm and helium-diluted atmospheres to quantify droplet size, pressure, cool-flame extinction, and soot formation.",
   },
+  "ACME Flame Design": {
+    accession: "PSI-10",
+    officialTitle:
+      "Advanced Combustion via Microgravity Experiments / Flame Design",
+    flightPlatform: "International Space Station (ISS)",
+    hardwareName: "ACME / Combustion Integrated Rack (CIR)",
+    hardwareUrl:
+      "https://www1.grc.nasa.gov/space/iss-research/iss-fcf/combustion-science/acme/implementation/",
+    psiUrl: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-10",
+    earthBenefits:
+      "This project has the potential for improving efficiency and reducing pollutant emissions in terrestrial combustors. For example, it is contributing to novel designs of future coal power plants.",
+    objectivesSummary:
+      "Obtain soot-inception limits, detailed quasi-steady flame measurements, and extinction limits for normal and inverse spherical ethylene and methane diffusion flames across flow rate, Zst, N2/CO2 dilution, and pressure.",
+  },
+  "Saffire-III": {
+    accession: "PSI-100",
+    officialTitle: "Spacecraft Fire Experiment-III",
+    flightPlatform: "Cygnus Cargo Vehicle (OA-7 post-unberth)",
+    hardwareName: "Saffire-III Enclosure in Cygnus",
+    hardwareUrl:
+      "https://www1.grc.nasa.gov/space/iss-research/msg/saffire/",
+    psiUrl: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-100",
+    earthBenefits:
+      "The Saffire-I experiment provides a new way to study a realistic fire on an exploration vehicle, which has not been possible in the past because the risks are too high. Instruments on an unmanned cargo vessel measure oxygen, carbon dioxide, heat, pressure and flame growth, and two video cameras provide views of the flame. Results determine microgravity flammability limits for several spacecraft materials, help to validate NASA’s material selection criteria, and how microgravity and limited oxygen affect flame size. The investigation is crucial for the safety of current and future space missions. Studying fire in small, sealed environments such as the Cygnus cargo supply vehicle benefits fire safety and prevention efforts on Earth, including inside mines, airplanes, or submarines.",
+    objectivesSummary:
+      "Determine how rapidly a large-scale SIBAL cloth fire grows in low gravity at 30 cm/s airflow and investigate low-g flammability limits relative to NASA normal-gravity screening tests.",
+  },
+  "ACME E-FIELD Flames": {
+    accession: "PSI-22",
+    officialTitle:
+      "Advanced Combustion via Microgravity Experiments Electric-Field Effects on Laminar Diffusion Flames",
+    flightPlatform: "International Space Station (ISS)",
+    hardwareName: "ACME / Combustion Integrated Rack (CIR)",
+    hardwareUrl:
+      "https://www1.grc.nasa.gov/space/iss-research/iss-fcf/combustion-science/acme/implementation/",
+    psiUrl: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-22",
+    earthBenefits:
+      "The E-FIELD Flames research is not being conducted to serve any space applications, but it is possible that its findings could aid the development of future space-based combustion devices (e.g., for solid waste processing). The use of electric fields to control flames can reduce the production of harmful pollutants in practical terrestrial combustion. The combustion of fossil fuel is the primary human source of greenhouse gas and acid rain and furthermore creates soot, which can be beneficial but is also a health hazard. Combustion using electrical fields may also allow for more efficient combustion, reducing fuel consumption in addition to unwanted emissions.",
+    objectivesSummary:
+      "Understand the relationship between electric-field voltage and chemi-ion current, dynamic flame response to electric-field changes, soot formation, and near-limit lifted flames.",
+  },
+  "SAME-R": {
+    accession: "PSI-101",
+    officialTitle: "Smoke Aerosol Measurement Experiment-Reflight",
+    flightPlatform: "International Space Station (ISS)",
+    hardwareName: "Comparative Soot Diagnostic Hardware",
+    hardwareUrl:
+      "https://ntrs.nasa.gov/api/citations/19960008413/downloads/19960008413.pdf",
+    psiUrl: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-101",
+    earthBenefits:
+      "Along with the results from the original SAME investigation, the results from SAME-R can lead to technology for an advanced fire detector for future spacecraft that will be used for long duration missions. SAME will provide quantitative data on the sensitivity of these detectors to reduced gravity smokes that will allow evaluation of the adequacy of these existing technologies using relevant data. The current Fire Prevention, Detection, and Suppression (FPDS) program plan allows for the re-evaluation of future sensor technology, to allow new technology and capability to be utilized. The results from SAME are needed to provide the reduced gravity baseline data against which future detection technology developments can be evaluated. The smoke detectors developed from the results of SAME can also be useful in other extreme environments on Earth, such as submarines or underwater laboratories. Accurate detection of smoke in these environments can save lives.",
+    objectivesSummary:
+      "Quantify liquid smoke particulate size distributions and relate them to smoke generation, transport, and ISS/Shuttle fire detector sensitivity across spacecraft materials in microgravity.",
+  },
 };
 
 export function CaseDetailPage() {

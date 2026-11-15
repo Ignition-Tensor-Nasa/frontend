@@ -701,16 +701,23 @@ export function ExplorerVisualDeck() {
   // Matrix grouping for F18
   const matrixGroups = useMemo(() => {
     const prevention: CaseSummary[] = [];
+    const detection: CaseSummary[] = [];
     const unknown: CaseSummary[] = [];
     for (const c of visibleCases) {
-      const ctx = RESEARCH_CONTEXT_BY_INVESTIGATION[c.investigation];
-      if (ctx?.tags.includes("prevention")) {
+      const tags = RESEARCH_CONTEXT_BY_INVESTIGATION[c.investigation]?.tags ?? [
+        "unknown",
+      ];
+      if (tags.includes("prevention")) {
         prevention.push(c);
-      } else {
+      }
+      if (tags.includes("detection")) {
+        detection.push(c);
+      }
+      if (!tags.includes("prevention") && !tags.includes("detection")) {
         unknown.push(c);
       }
     }
-    return { prevention, unknown };
+    return { prevention, detection, unknown };
   }, [visibleCases]);
 
   const isPresetActive = (presetFilters: Record<string, unknown>) => {
@@ -1129,24 +1136,83 @@ export function ExplorerVisualDeck() {
             </div>
 
             {/* Column 2: Detection */}
-            <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-3.5 space-y-2 flex flex-col justify-between opacity-85">
-              <div className="space-y-2">
-                <div className="flex items-center justify-between gap-2">
-                  <span className="text-xs font-semibold text-slate-200">
-                    Detection
-                  </span>
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-telemetry bg-slate-800 text-slate-400 border border-slate-700">
-                    0 curated runs
-                  </span>
+            {matrixGroups.detection.length > 0 ? (
+              <div className="rounded-xl border border-cyan-500/35 bg-cyan-950/15 p-3.5 space-y-2.5 flex flex-col justify-between">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-cyan-200">
+                      Detection
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-telemetry bg-cyan-500/20 text-cyan-200 border border-cyan-500/40">
+                      {matrixGroups.detection.length} runs
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-300 leading-relaxed">
+                    {RESEARCH_CONTEXT_BY_INVESTIGATION["SAME-R"].rationale}
+                  </p>
+                  <blockquote className="rounded-lg bg-slate-950/70 border border-slate-800 px-2.5 py-2 text-[11px] text-slate-300 italic">
+                    “{RESEARCH_CONTEXT_BY_INVESTIGATION["SAME-R"].evidence[0]?.quote}”
+                    <footer className="not-italic text-[10px] font-mono-telemetry text-slate-400 mt-1">
+                      SAME-R_PSI-101 · SAME Benefits.pdf · p. 1
+                    </footer>
+                  </blockquote>
                 </div>
-                <p className="text-[11px] text-slate-400 leading-relaxed">
-                  No curated PSI-39 or PSI-159 document certifies smoke or fire-detection sensor performance. Ready for future SAME-R / SLICE / SAFFIRE datasets.
-                </p>
+
+                <div className="space-y-1.5 pt-2 border-t border-cyan-500/20">
+                  <div className="flex flex-wrap gap-1">
+                    {matrixGroups.detection.slice(0, 5).map((c) => (
+                      <button
+                        key={c.case_id}
+                        type="button"
+                        onClick={() =>
+                          navigate(`/cases/${encodeURIComponent(c.case_id)}`)
+                        }
+                        className="px-2 py-0.5 rounded bg-slate-900 border border-slate-700 text-[10px] font-mono-telemetry text-cyan-300 hover:border-cyan-400 cursor-pointer"
+                      >
+                        {`Run ${c.case_id}`}
+                      </button>
+                    ))}
+                  </div>
+                  <div className="flex flex-wrap gap-3">
+                    <button
+                      type="button"
+                      onClick={() => applyFilters({ investigation: ["SAME-R"] })}
+                      className="text-[11px] text-cyan-300 hover:underline cursor-pointer"
+                    >
+                      Filter SAME-R →
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() =>
+                        applyFilters({ investigation: ["Saffire-III"] })
+                      }
+                      className="text-[11px] text-cyan-300 hover:underline cursor-pointer"
+                    >
+                      Filter Saffire-III →
+                    </button>
+                  </div>
+                </div>
               </div>
-              <span className="text-[10px] font-mono-telemetry text-slate-500">
-                Status: Not asserted in current curated bundle
-              </span>
-            </div>
+            ) : (
+              <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-3.5 space-y-2 flex flex-col justify-between opacity-85">
+                <div className="space-y-2">
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-semibold text-slate-200">
+                      Detection
+                    </span>
+                    <span className="px-2 py-0.5 rounded-full text-[10px] font-mono-telemetry bg-slate-800 text-slate-400 border border-slate-700">
+                      0 curated runs
+                    </span>
+                  </div>
+                  <p className="text-[11px] text-slate-400 leading-relaxed">
+                    No detection-tagged run is visible in the active filter slice (switch to live 6-investigation mode or clear filters for SAME-R / Saffire-III).
+                  </p>
+                </div>
+                <span className="text-[10px] font-mono-telemetry text-slate-500">
+                  Status: None in current filter slice
+                </span>
+              </div>
+            )}
 
             {/* Column 3: Suppression */}
             <div className="rounded-xl border border-slate-800 bg-slate-950/50 p-3.5 space-y-2 flex flex-col justify-between opacity-85">

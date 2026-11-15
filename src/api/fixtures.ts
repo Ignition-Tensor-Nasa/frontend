@@ -14,13 +14,15 @@ import type {
   SearchResponse,
 } from "./types";
 
+const RESEARCH_DISCLAIMER =
+  "Research-context grouping only; it does not certify fire-safety performance of any material, atmosphere or system.";
+
 const CFIG_RESEARCH_CONTEXT: CaseResearchContext = {
   tags: ["unknown"],
   rationale:
     "The documents shipped with PSI-159 (engineering implementation report, daily logs) describe hardware and operations; no statement tying CFI-G to fire prevention, detection or suppression was found in them.",
   evidence: [],
-  disclaimer:
-    "Research-context grouping only; it does not certify fire-safety performance of any material, atmosphere or system.",
+  disclaimer: RESEARCH_DISCLAIMER,
 };
 
 const FLEX_RESEARCH_CONTEXT: CaseResearchContext = {
@@ -43,8 +45,60 @@ const FLEX_RESEARCH_CONTEXT: CaseResearchContext = {
         "Microgravity droplet combustion experiments aimed at understanding the flammability boundaries of liquid fuels in a variety of ambient conditions – spacecraft fire safety",
     },
   ],
-  disclaimer:
-    "Research-context grouping only; it does not certify fire-safety performance of any material, atmosphere or system.",
+  disclaimer: RESEARCH_DISCLAIMER,
+};
+
+const FLAME_DESIGN_RESEARCH_CONTEXT: CaseResearchContext = {
+  tags: ["unknown"],
+  rationale:
+    "The documents shipped with PSI-10 describe the hardware and operations; no statement tying Flame Design to fire prevention, detection or suppression was found in them.",
+  evidence: [],
+  disclaimer: RESEARCH_DISCLAIMER,
+};
+
+const SAFFIRE_RESEARCH_CONTEXT: CaseResearchContext = {
+  tags: ["prevention", "detection"],
+  rationale:
+    "The project description frames Saffire as the basis for spacecraft fire prevention and response, and its objectives table lists fire-detection evaluation. Both are objectives of the Spacecraft Fire Safety Demonstration project as a whole, not results shown here.",
+  evidence: [
+    {
+      document:
+        "SAFFIRE-III_PSI-100/pdf/SAFFIRE Objectives, Development and Status.pdf",
+      page: 1,
+      quote:
+        "development of an approach to spacecraft fire prevention and response",
+    },
+    {
+      document:
+        "SAFFIRE-III_PSI-100/pdf/SAFFIRE Objectives, Development and Status.pdf",
+      page: 5,
+      quote: "Evaluate performance of hybrid fire detection",
+    },
+  ],
+  disclaimer: RESEARCH_DISCLAIMER,
+};
+
+const EFIELD_RESEARCH_CONTEXT: CaseResearchContext = {
+  tags: ["unknown"],
+  rationale:
+    "The documents shipped with PSI-22 describe the electric-field science and operations; no statement tying the experiment to fire prevention, detection or suppression was reviewed.",
+  evidence: [],
+  disclaimer: RESEARCH_DISCLAIMER,
+};
+
+const SAMER_RESEARCH_CONTEXT: CaseResearchContext = {
+  tags: ["detection"],
+  rationale:
+    "The experiment's stated purpose is measuring smoke from spacecraft materials to improve spacecraft smoke detectors.",
+  evidence: [
+    {
+      document: "SAME-R_PSI-101/pdf/SAME Benefits.pdf",
+      page: 1,
+      quote:
+        "The limited options available to respond to a spacecraft fire increase the importance of early detection.",
+    },
+  ],
+  disclaimer: RESEARCH_DISCLAIMER,
 };
 
 export const RESEARCH_CONTEXT_BY_INVESTIGATION: Record<
@@ -53,6 +107,10 @@ export const RESEARCH_CONTEXT_BY_INVESTIGATION: Record<
 > = {
   "ACME CFI-G": CFIG_RESEARCH_CONTEXT,
   "CFI (FLEX)": FLEX_RESEARCH_CONTEXT,
+  "ACME Flame Design": FLAME_DESIGN_RESEARCH_CONTEXT,
+  "Saffire-III": SAFFIRE_RESEARCH_CONTEXT,
+  "ACME E-FIELD Flames": EFIELD_RESEARCH_CONTEXT,
+  "SAME-R": SAMER_RESEARCH_CONTEXT,
 };
 
 const CFIG_SENSOR_COLUMNS: Dataset["columns"] = [
