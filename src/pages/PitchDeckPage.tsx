@@ -1,4 +1,5 @@
 import {
+  Award,
   BookOpen,
   ChevronLeft,
   ChevronRight,
@@ -8,6 +9,7 @@ import {
   Layers,
   Maximize2,
   Minimize2,
+  PlayCircle,
   Sparkles,
   Wrench,
 } from "lucide-react";
@@ -84,7 +86,7 @@ const TEAM_CREATORS = [
 
 interface PitchSlide {
   id: string;
-  kind: "intro" | "sources" | "gif";
+  kind: "intro" | "sources" | "gif" | "closing";
   clipId?: string;
   shortTitle: string;
   headline: string;
@@ -155,6 +157,16 @@ const PITCH_SLIDES: PitchSlide[] = [
     headline: "Multi-Run Flame Spread Comparison",
     description:
       "Select multiple compatible experiments to inspect synchronized telemetry curves, ignition behavior, and chamber differences side by side.",
+    liveRoute: "/",
+    liveLabel: "Open Explorer",
+  },
+  {
+    id: "hackathon-closing",
+    kind: "closing",
+    shortTitle: "Hackathon",
+    headline: "NASA International Space Apps Challenge 2026",
+    description:
+      "Challenge details, official NASA Space Apps link, and reference mission video - ready to explore live in PSI-Lens.",
     liveRoute: "/",
     liveLabel: "Open Explorer",
   },
@@ -549,6 +561,76 @@ export function PitchDeckPage() {
                   </a>
                 ))}
               </div>
+            </div>
+          </div>
+        )}
+
+        {slide.kind === "closing" && (
+          <div
+            data-testid="pitch-closing-stage"
+            className={cn(
+              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-6 sm:p-8 flex flex-col justify-between gap-6",
+              stageHeightClass,
+            )}
+          >
+            <div className="space-y-4 w-full">
+              <div className="inline-flex items-center gap-2 rounded-full px-3.5 py-1.5 text-xs sm:text-sm font-mono uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+                <Award className="w-4 h-4 shrink-0" />
+                NASA International Space Apps Challenge 2026
+              </div>
+              <h2 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-white leading-tight">
+                Hackathon &amp; References
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5 flex-1">
+              <div className="rounded-2xl bg-slate-900/85 border border-cyan-400/25 p-6 sm:p-7 flex flex-col justify-center space-y-2.5">
+                <div className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-cyan-300">
+                  Event
+                </div>
+                <div className="text-xl sm:text-2xl font-bold text-white leading-snug">
+                  NASA International Space Apps Challenge 2026 (team project)
+                </div>
+              </div>
+
+              <div className="rounded-2xl bg-slate-900/85 border border-orange-400/35 p-6 sm:p-7 flex flex-col justify-center space-y-2.5">
+                <div className="text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-orange-300">
+                  Challenge
+                </div>
+                <div className="text-xl sm:text-2xl font-bold italic text-white leading-snug">
+                  Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data
+                </div>
+              </div>
+
+              <a
+                href="https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/"
+                target="_blank"
+                rel="noreferrer"
+                className="group rounded-2xl bg-slate-900/85 border border-cyan-400/25 hover:border-cyan-400/70 p-6 sm:p-7 flex flex-col justify-center space-y-2.5 transition-colors"
+              >
+                <div className="inline-flex items-center gap-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-cyan-300">
+                  <ExternalLink className="w-4 h-4 shrink-0" />
+                  Challenge URL
+                </div>
+                <div className="text-sm sm:text-lg font-mono text-cyan-200 group-hover:text-white break-all">
+                  https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/
+                </div>
+              </a>
+
+              <a
+                href="https://www.youtube.com/watch?v=AVuEiKxOpc0"
+                target="_blank"
+                rel="noreferrer"
+                className="group rounded-2xl bg-slate-900/85 border border-orange-400/25 hover:border-orange-400/70 p-6 sm:p-7 flex flex-col justify-center space-y-2.5 transition-colors"
+              >
+                <div className="inline-flex items-center gap-2 text-xs sm:text-sm font-mono font-bold uppercase tracking-wider text-orange-300">
+                  <PlayCircle className="w-4 h-4 shrink-0" />
+                  Reference Video
+                </div>
+                <div className="text-sm sm:text-lg font-mono text-orange-200 group-hover:text-white break-all">
+                  https://www.youtube.com/watch?v=AVuEiKxOpc0
+                </div>
+              </a>
             </div>
           </div>
         )}

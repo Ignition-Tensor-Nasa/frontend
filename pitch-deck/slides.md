@@ -249,6 +249,45 @@ flowchart LR
 </div>
 
 <!--
-Closing (2:50–3:00):
-Under the hood: offline ETL normalizes NASA CSV/XLSX into Parquet, FastAPI + Polars serve typed JSON in milliseconds, and React + Apache ECharts render crisp telemetry with zero fabricated safety claims. Thank you - happy to open the live dashboard for Q&A!
+Pipeline (2:25-2:45):
+Under the hood: offline ETL normalizes NASA CSV/XLSX into Parquet, FastAPI + Polars serve typed JSON in milliseconds, and React + Apache ECharts render crisp telemetry with zero fabricated safety claims.
+-->
+
+---
+title: Hackathon
+---
+
+<div class="h-full flex flex-col justify-between py-2">
+  <div class="space-y-2">
+    <span class="px-3.5 py-1.5 rounded-full text-xs font-mono tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-400/35">
+      NASA International Space Apps Challenge 2026
+    </span>
+    <div class="text-4xl font-extrabold tracking-tight text-white">
+      Hackathon &amp; References
+    </div>
+  </div>
+
+  <div class="grid grid-cols-2 gap-5 my-auto">
+    <div class="metric-pill rounded-xl px-6 py-5 space-y-2">
+      <div class="text-xs font-mono uppercase tracking-wider text-cyan-300">Event</div>
+      <div class="text-xl font-bold text-white">NASA International Space Apps Challenge 2026 (team project)</div>
+    </div>
+    <div class="metric-pill rounded-xl px-6 py-5 space-y-2">
+      <div class="text-xs font-mono uppercase tracking-wider text-orange-300">Challenge</div>
+      <div class="text-xl font-bold italic text-white">Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data</div>
+    </div>
+    <a href="https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/" target="_blank" class="metric-pill rounded-xl px-6 py-5 space-y-2 block">
+      <div class="text-xs font-mono uppercase tracking-wider text-cyan-300">Challenge URL</div>
+      <div class="text-base font-mono text-cyan-200 break-all">https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/</div>
+    </a>
+    <a href="https://www.youtube.com/watch?v=AVuEiKxOpc0" target="_blank" class="metric-pill rounded-xl px-6 py-5 space-y-2 block">
+      <div class="text-xs font-mono uppercase tracking-wider text-orange-300">Reference Video</div>
+      <div class="text-base font-mono text-orange-200 break-all">https://www.youtube.com/watch?v=AVuEiKxOpc0</div>
+    </a>
+  </div>
+</div>
+
+<!--
+Closing (2:45-3:00):
+Thank you - we built PSI-Lens for the NASA International Space Apps Challenge 2026 Flame in Freefall challenge. Everything is live and ready for Q&A!
 -->

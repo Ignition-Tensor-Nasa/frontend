@@ -722,16 +722,16 @@ describe("Special Curated Cases: SAFFIRE-III (PSI-100) bespoke view & AI summary
 });
 
 describe("3-Minute Jury Pitch Deck (/pitch)", () => {
-  it("renders 6 English-only slide tabs starting with Introduction, NASA Data & Workflow, and 4 GIF slides", async () => {
+  it("renders 7 English-only slide tabs starting with Introduction, NASA Data & Workflow, 4 GIF slides, and Hackathon & Team closing slide", async () => {
     window.history.pushState({}, "", "/pitch");
     const user = userEvent.setup();
     render(<App />);
 
     expect(await screen.findByTestId("pitch-deck-page")).toBeInTheDocument();
-    for (let i = 1; i <= 6; i += 1) {
+    for (let i = 1; i <= 7; i += 1) {
       expect(screen.getByTestId(`pitch-slide-tab-${i}`)).toBeInTheDocument();
     }
-    expect(screen.queryByTestId("pitch-slide-tab-7")).toBeNull();
+    expect(screen.queryByTestId("pitch-slide-tab-8")).toBeNull();
 
     // Simplified UI: no timer controls, no MP4/GIF switcher, no language toggle
     expect(screen.queryByRole("button", { name: /Start 3:00/i })).toBeNull();
@@ -842,5 +842,20 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
       /^\/pitch\/01_mission_overview\.gif\?play=\d+$/,
     );
     expect(secondSlide3Src).not.toBe(firstSlide3Src);
+
+    // Slide 7: Closing Hackathon slide (without Team section)
+    await user.click(screen.getByTestId("pitch-slide-tab-7"));
+    const closingStage = screen.getByTestId("pitch-closing-stage");
+    expect(closingStage).toBeInTheDocument();
+    expect(
+      screen.getByText(/NASA International Space Apps Challenge 2026 \(team project\)/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("https://www.spaceappschallenge.org/2026/challenges/flame-in-freefall/"),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText("https://www.youtube.com/watch?v=AVuEiKxOpc0"),
+    ).toBeInTheDocument();
+    expect(closingStage).not.toHaveTextContent("Marcel Bieżuński");
   });
 });
