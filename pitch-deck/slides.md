@@ -11,17 +11,22 @@ transition: slide-left
 mdc: true
 ---
 
-<div class="h-full flex flex-col justify-between py-2">
-  <div class="flex items-center justify-between">
-    <span class="px-3 py-1 rounded-full text-xs font-mono tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-400/35">
-      NASA PSI · Microgravity Combustion
-    </span>
-    <span class="px-3 py-1 rounded-full text-xs font-mono text-orange-300 bg-orange-500/10 border border-orange-400/30">
-      PSI-LENS // 3-Minute Jury Pitch
-    </span>
+<div class="h-full flex flex-col justify-between py-1">
+  <div class="space-y-2.5">
+    <div class="flex flex-wrap items-center justify-between gap-2">
+      <span class="px-3 py-1 rounded-full text-xs font-mono tracking-widest uppercase bg-cyan-500/15 text-cyan-300 border border-cyan-400/35">
+        NASA Physical Sciences Informatics · Mission Control
+      </span>
+      <span class="px-3 py-1 rounded-full text-xs font-mono text-orange-300 bg-orange-500/10 border border-orange-400/30">
+        PSI-LENS // 3-Minute Jury Pitch
+      </span>
+    </div>
+    <div class="px-4 py-2.5 rounded-xl bg-orange-500/15 border border-orange-400/45 text-lg font-bold tracking-tight text-white leading-snug">
+      <span class="text-orange-300">Challenge:</span> Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data
+    </div>
   </div>
 
-  <div class="space-y-5 max-w-4xl">
+  <div class="space-y-4 max-w-4xl">
     <div class="text-5xl font-extrabold tracking-tight leading-tight text-white">
       Fire in Space Breaks<br />
       <span class="bg-gradient-to-r from-cyan-300 via-sky-300 to-orange-300 bg-clip-text text-transparent">
@@ -55,7 +60,7 @@ mdc: true
     </div>
     <div>
       <span class="font-mono font-semibold uppercase text-orange-300 mr-2">Created By:</span>
-      <span class="font-semibold text-white">Bartosz Żelek · Jakub Więcław · Jakub Grabowski · Mateusz Frąckowiak · Marcel Bieżuński</span>
+      <span class="font-semibold text-white">Marcel Bieżuński · Mateusz Frąckowiak · Jakub Grabowski · Jakub Więcław · Bartosz Żelek</span>
     </div>
   </div>
 </div>

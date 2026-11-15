@@ -722,15 +722,16 @@ describe("Special Curated Cases: SAFFIRE-III (PSI-100) bespoke view & AI summary
 });
 
 describe("3-Minute Jury Pitch Deck (/pitch)", () => {
-  it("renders 7 English-only slide tabs starting with Introduction hero and switching GIF slides cleanly", async () => {
+  it("renders 6 English-only slide tabs starting with Introduction, NASA Data & Workflow, and 4 GIF slides", async () => {
     window.history.pushState({}, "", "/pitch");
     const user = userEvent.setup();
     render(<App />);
 
     expect(await screen.findByTestId("pitch-deck-page")).toBeInTheDocument();
-    for (let i = 1; i <= 7; i += 1) {
+    for (let i = 1; i <= 6; i += 1) {
       expect(screen.getByTestId(`pitch-slide-tab-${i}`)).toBeInTheDocument();
     }
+    expect(screen.queryByTestId("pitch-slide-tab-7")).toBeNull();
 
     // Simplified UI: no timer controls, no MP4/GIF switcher, no language toggle
     expect(screen.queryByRole("button", { name: /Start 3:00/i })).toBeNull();
@@ -738,7 +739,7 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
     expect(screen.queryByRole("button", { name: /^PL$/i })).toBeNull();
     expect(document.querySelector("video")).toBeNull();
 
-    // Default Slide 1: Introduction hero for students, engineers, professors, sources & authors
+    // Slide 1: Introduction hero with audience cards and creators (no NASA sources strip)
     expect(
       screen.getByRole("heading", { name: /What Is PSI-Lens\?/i }),
     ).toBeInTheDocument();
@@ -748,11 +749,50 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
     expect(screen.getByText(/Professors & Researchers/i)).toBeInTheDocument();
     expect(screen.getByText("Bartosz Żelek")).toBeInTheDocument();
     expect(screen.getByText("Marcel Bieżuński")).toBeInTheDocument();
+    const creatorOrder = Array.from(
+      screen
+        .getByTestId("pitch-intro-stage")
+        .querySelectorAll("span")
+        .values(),
+    )
+      .map((el) => el.textContent?.trim())
+      .filter((text): text is string =>
+        [
+          "Marcel Bieżuński",
+          "Mateusz Frąckowiak",
+          "Jakub Grabowski",
+          "Jakub Więcław",
+          "Bartosz Żelek",
+        ].includes(text ?? ""),
+      );
+    expect(creatorOrder).toEqual([
+      "Marcel Bieżuński",
+      "Mateusz Frąckowiak",
+      "Jakub Grabowski",
+      "Jakub Więcław",
+      "Bartosz Żelek",
+    ]);
+    expect(screen.getByTestId("pitch-challenge-banner")).toHaveTextContent(
+      /Challenge:\s*Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data/i,
+    );
+    expect(screen.queryByTestId("pitch-sources-stage")).toBeNull();
+
+    // Slide 2: Expanded NASA Data & Workflow breakdown
+    await user.click(screen.getByTestId("pitch-slide-tab-2"));
+    expect(
+      screen.getByRole("heading", {
+        name: /Inside the NASA PSI Dataset & Workflow/i,
+      }),
+    ).toBeInTheDocument();
+    expect(screen.getByTestId("pitch-sources-stage")).toBeInTheDocument();
+    expect(screen.getByText(/Condenses & Groups/i)).toBeInTheDocument();
+    expect(screen.getByText(/Natural Language \+ Filters/i)).toBeInTheDocument();
+    expect(screen.getByText(/Visualizes & Routes/i)).toBeInTheDocument();
     expect(screen.getByText("PSI-159")).toBeInTheDocument();
     expect(screen.getByText("PSI-100")).toBeInTheDocument();
 
-    // Jump to Slide 2 (Mission Overview GIF)
-    await user.click(screen.getByTestId("pitch-slide-tab-2"));
+    // Slide 3: Mission Overview GIF
+    await user.click(screen.getByTestId("pitch-slide-tab-3"));
     expect(
       screen.getByRole("heading", {
         name: /Microgravity Combustion & Mission Overview/i,
@@ -763,8 +803,8 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
       "/pitch/01_mission_overview.gif",
     );
 
-    // Jump to Slide 3 (Scenario Filters GIF)
-    await user.click(screen.getByTestId("pitch-slide-tab-3"));
+    // Slide 4: Scenario Filters GIF
+    await user.click(screen.getByTestId("pitch-slide-tab-4"));
     expect(
       screen.getByRole("heading", {
         name: /Natural-Language Scenario Filter Assistant/i,
@@ -775,16 +815,16 @@ describe("3-Minute Jury Pitch Deck (/pitch)", () => {
       "/pitch/02_scenario_filters.gif",
     );
 
-    // Jump to Slide 7 (SAFFIRE-III GIF)
-    await user.click(screen.getByTestId("pitch-slide-tab-7"));
+    // Slide 6: Cross-Run Comparison GIF (old slides 6 & 7 removed)
+    await user.click(screen.getByTestId("pitch-slide-tab-6"));
     expect(
       screen.getByRole("heading", {
-        name: /SAFFIRE-III Spacecraft Fire Telemetry & AI Briefing/i,
+        name: /Multi-Run Flame Spread Comparison/i,
       }),
     ).toBeInTheDocument();
     expect(screen.getByRole("img")).toHaveAttribute(
       "src",
-      "/pitch/06_saffire_mission.gif",
+      "/pitch/04_cross_run_comparison.gif",
     );
   });
 });

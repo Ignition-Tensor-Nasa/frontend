@@ -18,6 +18,8 @@ import { cn } from "../lib/utils";
 interface NasaSourceRef {
   accession: string;
   label: string;
+  platform: string;
+  summary: string;
   url: string;
 }
 
@@ -25,45 +27,64 @@ const NASA_SOURCES: NasaSourceRef[] = [
   {
     accession: "PSI-159",
     label: "ACME CFI-G",
+    platform: "ISS · CIR",
+    summary:
+      "Gaseous normal and inverse cool diffusion flames (propane, n-butane, n-pentane) across Z_st, T_ad, radiometers, and PMT sensors.",
     url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-159",
   },
   {
     accession: "PSI-39",
     label: "CFI (FLEX)",
+    platform: "ISS · MDCA / CIR",
+    summary:
+      "n-Dodecane and iso-dodecane droplet combustion across 0.25-5 atm capturing droplet diameter (D²) decay and cool-flame extinction.",
     url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-39",
   },
   {
     accession: "PSI-10",
     label: "ACME Flame Design",
+    platform: "ISS · ACME / CIR",
+    summary:
+      "Spherical ethylene and methane diffusion flames measuring soot-inception limits, N2/CO2 dilution, and pressure boundaries.",
     url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-10",
   },
   {
     accession: "PSI-100",
     label: "SAFFIRE-III",
+    platform: "Cygnus OA-7",
+    summary:
+      "Large-scale 0.4 x 0.94 m SIBAL cloth fire with 30 Hz chamber thermocouples (1088 °C peak) synced to 1 Hz Cygnus downlink telemetry.",
     url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-100",
   },
   {
     accession: "PSI-22",
     label: "ACME E-FIELD",
+    platform: "ISS · ACME / CIR",
+    summary:
+      "Laminar diffusion flames under electric fields tracking applied voltage, chemi-ion current, soot behavior, and near-limit lift.",
     url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-22",
   },
   {
     accession: "PSI-101",
     label: "SAME-R",
+    platform: "ISS · NTRS / PSI",
+    summary:
+      "Microgravity smoke aerosol particulate sizing and transport data benchmarking spacecraft smoke-detector sensitivity.",
     url: "https://psi.nasa.gov/physci/repo/data/investigations/PSI-101",
   },
 ];
 
 const TEAM_CREATORS = [
-  "Bartosz Żelek",
-  "Jakub Więcław",
-  "Jakub Grabowski",
-  "Mateusz Frąckowiak",
   "Marcel Bieżuński",
+  "Mateusz Frąckowiak",
+  "Jakub Grabowski",
+  "Jakub Więcław",
+  "Bartosz Żelek",
 ];
 
 interface PitchSlide {
   id: string;
+  kind: "intro" | "sources" | "gif";
   clipId?: string;
   shortTitle: string;
   headline: string;
@@ -75,6 +96,7 @@ interface PitchSlide {
 const PITCH_SLIDES: PitchSlide[] = [
   {
     id: "introduction",
+    kind: "intro",
     shortTitle: "Introduction",
     headline: "What Is PSI-Lens?",
     description:
@@ -83,7 +105,18 @@ const PITCH_SLIDES: PitchSlide[] = [
     liveLabel: "Open Explorer",
   },
   {
+    id: "nasa-data-sources",
+    kind: "sources",
+    shortTitle: "NASA Data & Workflow",
+    headline: "Inside the NASA PSI Dataset & Workflow",
+    description:
+      "PSI-Lens normalizes 358 verified runs across 6 NASA investigations from raw CSV, XLSX, and technical reports into filterable, chart-ready telemetry.",
+    liveRoute: "/",
+    liveLabel: "Open Explorer",
+  },
+  {
     id: "mission-overview",
+    kind: "gif",
     clipId: "01_mission_overview",
     shortTitle: "Mission Overview",
     headline: "Microgravity Combustion & Mission Overview",
@@ -94,6 +127,7 @@ const PITCH_SLIDES: PitchSlide[] = [
   },
   {
     id: "scenario-filters",
+    kind: "gif",
     clipId: "02_scenario_filters",
     shortTitle: "Scenario Filters",
     headline: "Natural-Language Scenario Filter Assistant",
@@ -104,6 +138,7 @@ const PITCH_SLIDES: PitchSlide[] = [
   },
   {
     id: "regime-analytics",
+    kind: "gif",
     clipId: "03_regime_analytics",
     shortTitle: "Regime Map",
     headline: "Atmospheric Regime & Parameter Explorer",
@@ -114,6 +149,7 @@ const PITCH_SLIDES: PitchSlide[] = [
   },
   {
     id: "cross-run-comparison",
+    kind: "gif",
     clipId: "04_cross_run_comparison",
     shortTitle: "Cross-Run Compare",
     headline: "Multi-Run Flame Spread Comparison",
@@ -121,26 +157,6 @@ const PITCH_SLIDES: PitchSlide[] = [
       "Select multiple compatible experiments to inspect synchronized telemetry curves, ignition behavior, and chamber differences side by side.",
     liveRoute: "/",
     liveLabel: "Open Explorer",
-  },
-  {
-    id: "telemetry-modes",
-    clipId: "05_telemetry_modes",
-    shortTitle: "Signal Telemetry",
-    headline: "Interactive Time-Series & Scatter Telemetry",
-    description:
-      "Switch smoothly between dual-unit time-series traces and paired X/Y scatter correlations directly from loaded run telemetry.",
-    liveRoute: "/cases/FLEX-1249",
-    liveLabel: "Open Case View",
-  },
-  {
-    id: "saffire-mission",
-    clipId: "06_saffire_mission",
-    shortTitle: "SAFFIRE-III",
-    headline: "SAFFIRE-III Spacecraft Fire Telemetry & AI Briefing",
-    description:
-      "Cygnus OA-7 spacecraft fire analysis combining 30 Hz thermopile arrays, flame-arrival ordering, and 1 Hz telemetry with an AI mission brief.",
-    liveRoute: "/special-cases/SAFFIRE-III-S1",
-    liveLabel: "Open SAFFIRE-III",
   },
 ];
 
@@ -213,6 +229,10 @@ export function PitchDeckPage() {
       window.removeEventListener("keydown", onKeyDown);
     };
   }, [activeIndex, goToSlide, slideCount, toggleFullscreen]);
+
+  const stageHeightClass = isFullscreen
+    ? "min-h-[calc(100vh-195px)]"
+    : "min-h-[calc(100vh-300px)]";
 
   return (
     <div
@@ -315,9 +335,9 @@ export function PitchDeckPage() {
         </div>
       </section>
 
-      {/* Stage: Slide 1 Introduction hero OR full-width animated GIF */}
+      {/* Stage: Slide 1 Intro, Slide 2 NASA Data & Workflow, or Slides 3-6 GIF */}
       <section className="panel-surface-cyan rounded-2xl p-2">
-        {slide.clipId ? (
+        {slide.kind === "gif" && slide.clipId && (
           <div className="w-full overflow-hidden rounded-xl bg-slate-950/90 border border-cyan-400/20 flex items-center justify-center">
             <img
               key={slide.clipId}
@@ -331,123 +351,168 @@ export function PitchDeckPage() {
               )}
             />
           </div>
-        ) : (
+        )}
+
+        {slide.kind === "intro" && (
           <div
             data-testid="pitch-intro-stage"
             className={cn(
-              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-4 sm:p-5 flex flex-col justify-between gap-3.5",
-              isFullscreen
-                ? "min-h-[calc(100vh-195px)]"
-                : "min-h-[calc(100vh-300px)]",
+              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-5 sm:p-6 flex flex-col justify-between gap-4",
+              stageHeightClass,
             )}
           >
             {/* Main thesis */}
-            <div className="space-y-1.5 max-w-4xl">
-              <span className="inline-flex items-center gap-2 rounded-full px-3 py-0.5 text-[11px] font-mono uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
+            <div className="space-y-3 max-w-6xl">
+              <span className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-xs font-mono uppercase tracking-wider bg-cyan-500/15 text-cyan-300 border border-cyan-400/30">
                 NASA Physical Sciences Informatics · Single Entry Point
               </span>
-              <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-white leading-tight">
+              <div
+                data-testid="pitch-challenge-banner"
+                className="rounded-xl px-4 py-2.5 bg-orange-500/15 border border-orange-400/50"
+              >
+                <p className="text-lg sm:text-[22px] font-bold tracking-tight text-white leading-snug">
+                  <span className="text-orange-300">Challenge:</span>{" "}
+                  Flame in Freefall: SI-Powered Fire Safety Insights from Microgravity Combustion Data
+                </p>
+              </div>
+              <h2 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-white leading-tight">
                 Stop Digging Through Terabytes of Raw Data &amp; Hundreds of Papers
               </h2>
-              <p className="text-sm sm:text-base text-slate-300 leading-relaxed">
+              <p className="text-sm sm:text-base text-slate-300 leading-relaxed max-w-5xl">
                 PSI-Lens condenses, groups, and visualizes NASA microgravity combustion experiments in one interactive dashboard - combining natural-language search, live physical filtering, and direct links back to verified primary sources.
               </p>
             </div>
 
             {/* Who it is built for */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
-              <div className="rounded-xl bg-slate-900/75 border border-cyan-400/25 p-3.5 space-y-1.5">
-                <div className="inline-flex items-center gap-2 text-cyan-300 text-sm font-semibold">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="rounded-xl bg-slate-900/75 border border-cyan-400/25 p-4 space-y-2">
+                <div className="inline-flex items-center gap-2 text-cyan-300 text-base font-semibold">
                   <GraduationCap className="w-4 h-4 shrink-0" />
                   Students
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                   Intuitively explore how flames behave without gravity - no need to parse raw CSV/XLSX archives first.
                 </p>
               </div>
 
-              <div className="rounded-xl bg-slate-900/75 border border-orange-400/25 p-3.5 space-y-1.5">
-                <div className="inline-flex items-center gap-2 text-orange-300 text-sm font-semibold">
+              <div className="rounded-xl bg-slate-900/75 border border-orange-400/25 p-4 space-y-2">
+                <div className="inline-flex items-center gap-2 text-orange-300 text-base font-semibold">
                   <Wrench className="w-4 h-4 shrink-0" />
                   Engineers
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                   Filter cabin oxygen, pressure, and ignition regimes side by side, and inspect high-rate SAFFIRE-III spacecraft telemetry.
                 </p>
               </div>
 
-              <div className="rounded-xl bg-slate-900/75 border border-emerald-400/25 p-3.5 space-y-1.5">
-                <div className="inline-flex items-center gap-2 text-emerald-300 text-sm font-semibold">
+              <div className="rounded-xl bg-slate-900/75 border border-emerald-400/25 p-4 space-y-2">
+                <div className="inline-flex items-center gap-2 text-emerald-300 text-base font-semibold">
                   <BookOpen className="w-4 h-4 shrink-0" />
                   Professors &amp; Researchers
                 </div>
-                <p className="text-xs text-slate-300 leading-relaxed">
+                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
                   Group related NASA investigations instantly, inspect calibrated curves, and jump straight to original NASA PSI publications.
                 </p>
               </div>
             </div>
 
-            {/* Unified workflow strip */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-white/10">
-              <div className="flex items-center gap-2 text-xs text-slate-200">
-                <Database className="w-4 h-4 text-cyan-400 shrink-0" />
-                <span>
-                  <strong className="text-white">Condenses &amp; Groups</strong> - 358 curated runs across 6 NASA missions
-                </span>
+            {/* Creators footer */}
+            <div className="pt-3 border-t border-white/10 space-y-2">
+              <div className="text-xs sm:text-sm font-mono font-semibold uppercase tracking-wider text-orange-300">
+                Created By
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-200">
-                <Sparkles className="w-4 h-4 text-orange-400 shrink-0" />
-                <span>
-                  <strong className="text-white">Natural Language + Filters</strong> - plain English to validated bounds
-                </span>
+              <div className="flex flex-wrap gap-2.5">
+                {TEAM_CREATORS.map((author) => (
+                  <span
+                    key={author}
+                    className="inline-flex items-center rounded-lg px-3.5 py-1.5 text-sm sm:text-base font-semibold bg-slate-900/90 border border-orange-400/30 text-white"
+                  >
+                    {author}
+                  </span>
+                ))}
               </div>
-              <div className="flex items-center gap-2 text-xs text-slate-200">
-                <Layers className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>
-                  <strong className="text-white">Visualizes &amp; Routes</strong> - live ECharts + primary NASA sources
-                </span>
+            </div>
+          </div>
+        )}
+
+        {slide.kind === "sources" && (
+          <div
+            data-testid="pitch-sources-stage"
+            className={cn(
+              "w-full rounded-xl bg-slate-950/90 border border-cyan-400/20 p-4 sm:p-5 flex flex-col justify-between gap-4",
+              stageHeightClass,
+            )}
+          >
+            {/* Unified workflow cards */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+              <div className="rounded-xl bg-slate-900/80 border border-cyan-400/25 p-3.5 space-y-1.5">
+                <div className="flex items-center gap-2 text-cyan-300 text-sm font-semibold">
+                  <Database className="w-4 h-4 shrink-0" />
+                  Condenses &amp; Groups
+                </div>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  358 curated runs across 6 NASA missions - pre-normalized from raw CSV, XLSX, and PDF documentation into Parquet/Polars.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-900/80 border border-orange-400/25 p-3.5 space-y-1.5">
+                <div className="flex items-center gap-2 text-orange-300 text-sm font-semibold">
+                  <Sparkles className="w-4 h-4 shrink-0" />
+                  Natural Language + Filters
+                </div>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  Plain English to validated bounds - instant O₂%, absolute pressure, fuel, and investigation filtering in one control surface.
+                </p>
+              </div>
+
+              <div className="rounded-xl bg-slate-900/80 border border-emerald-400/25 p-3.5 space-y-1.5">
+                <div className="flex items-center gap-2 text-emerald-300 text-sm font-semibold">
+                  <Layers className="w-4 h-4 shrink-0" />
+                  Visualizes &amp; Routes
+                </div>
+                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                  Live ECharts + primary NASA sources - calibrated multi-unit traces, null-safe curves, and direct links to official PSI records.
+                </p>
               </div>
             </div>
 
-            {/* NASA Sources & Creators footer */}
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 pt-3 border-t border-white/10">
-              <div className="lg:col-span-7 space-y-2">
+            {/* Expanded NASA Data Sources breakdown */}
+            <div className="space-y-2.5 pt-2 border-t border-white/10">
+              <div className="flex flex-wrap items-center justify-between gap-2">
                 <div className="text-xs sm:text-sm font-mono font-semibold uppercase tracking-wider text-cyan-300">
                   NASA Data Sources (PSI Repository · GRC · NTRS)
                 </div>
-                <div className="flex flex-wrap gap-2">
-                  {NASA_SOURCES.map((src) => (
-                    <a
-                      key={src.accession}
-                      href={src.url}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1 text-xs sm:text-sm font-medium bg-slate-900/90 border border-cyan-400/30 text-slate-100 hover:text-cyan-200 hover:border-cyan-400/70 transition-colors"
-                    >
-                      <span className="font-mono font-semibold text-cyan-300">
-                        {src.accession}
-                      </span>
-                      <span className="text-slate-400">·</span>
-                      <span>{src.label}</span>
-                    </a>
-                  ))}
-                </div>
+                <span className="text-xs text-slate-400">
+                  Original units &amp; sampling rates preserved - click any investigation to open NASA PSI
+                </span>
               </div>
 
-              <div className="lg:col-span-5 space-y-2">
-                <div className="text-xs sm:text-sm font-mono font-semibold uppercase tracking-wider text-orange-300">
-                  Created By
-                </div>
-                <div className="flex flex-wrap gap-2">
-                  {TEAM_CREATORS.map((author) => (
-                    <span
-                      key={author}
-                      className="inline-flex items-center rounded-lg px-3 py-1 text-xs sm:text-sm font-semibold bg-slate-900/90 border border-orange-400/25 text-white"
-                    >
-                      {author}
-                    </span>
-                  ))}
-                </div>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                {NASA_SOURCES.map((src) => (
+                  <a
+                    key={src.accession}
+                    href={src.url}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="group rounded-xl bg-slate-900/90 border border-cyan-400/25 hover:border-cyan-400/70 p-3.5 flex flex-col justify-between gap-2 transition-colors"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="inline-flex items-center gap-1.5 text-sm font-semibold text-white group-hover:text-cyan-200">
+                        <span className="font-mono text-cyan-300">
+                          {src.accession}
+                        </span>
+                        <span className="text-slate-400">·</span>
+                        <span>{src.label}</span>
+                      </div>
+                      <span className="rounded px-2 py-0.5 text-[11px] font-mono bg-slate-950 text-orange-300 border border-orange-400/25 shrink-0">
+                        {src.platform}
+                      </span>
+                    </div>
+                    <p className="text-xs text-slate-300 leading-relaxed">
+                      {src.summary}
+                    </p>
+                  </a>
+                ))}
               </div>
             </div>
           </div>
